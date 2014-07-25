@@ -256,6 +256,11 @@ QVariant vogleditor_apiCallTreeItem::columnData(int column, int role) const
 
     if (role == Qt::DisplayRole)
     {
+        if (column == VOGL_ACTC_DURATION)
+        {
+            QString z(m_columnData[column].toString());
+            QString x(z);
+        }
         return m_columnData[column];
     }
 

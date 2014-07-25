@@ -365,6 +365,42 @@ QVariant vogleditor_QApiCallTreeModel::data(const QModelIndex &index, int role) 
         return font;
     }
 
+    if (role == Qt::FontRole && pItem->apiCallItem() != NULL && index.column() == VOGL_ACTC_DURATION)
+    {
+        QFont font;
+        font.setFamily("Courier");
+        font.setBold(true);
+        //font.setStyleHint(QFont::Courier);
+        return font;
+    }
+
+    // make the (non-API call) columns right-justified
+    if (role == Qt::DisplayRole && pItem->apiCallItem() != NULL && index.column() == VOGL_ACTC_DURATION)
+    {
+static QString tmp;
+        QVariant data = pItem->columnData(VOGL_ACTC_DURATION, Qt::DisplayRole);
+        QString string = data.toString();
+        if (string != tmp)
+        {
+// either of these right-justification formattings work as long as font is
+// monospaced (e.g. Courier)
+           tmp = string;
+           QString reformat = QString("%1").arg(tmp, 10, ' ');
+           return reformat;
+// also works:
+           //return tmp.rightJustified(10, ' ');
+        }
+    }
+
+#ifdef LLL
+    // make the (non-API call) columns right-justified
+    //if (role == Qt::TextAlignmentRole && index.column() != VOGL_ACTC_APICALL)
+    if (role == Qt::TextAlignmentRole && index.column() == VOGL_ACTC_DURATION)
+    {
+        return (Qt::AlignRight + Qt::AlignJustify);
+    }
+#endif //LLL
+
     // highlight the API call cell if it has a substring which matches the searchString
     if (role == Qt::BackgroundRole && index.column() == VOGL_ACTC_APICALL)
     {
