@@ -28,8 +28,10 @@
 
 #include <QList>
 #include <QVariant>
+#include "vogl_core.h"
 
 class vogleditor_frameItem;
+class vogleditor_groupItem;
 class vogleditor_apiCallItem;
 class vogleditor_gl_state_snapshot;
 
@@ -59,6 +61,9 @@ public:
     // Constructor for frame nodes
     vogleditor_apiCallTreeItem(vogleditor_frameItem* frameItem, vogleditor_apiCallTreeItem* parent);
 
+    // Constructor for group nodes
+    vogleditor_apiCallTreeItem(vogleditor_apiCallTreeItem* parent);
+
     // Constructor for apiCall nodes
     vogleditor_apiCallTreeItem(QString nodeText, vogleditor_apiCallItem* apiCallItem, vogleditor_apiCallTreeItem* parent);
 
@@ -76,6 +81,10 @@ public:
 
     vogleditor_frameItem* frameItem() const;
 
+    uint64_t startTime() const;
+    uint64_t endTime() const;
+    uint64_t duration() const;
+
     void set_snapshot(vogleditor_gl_state_snapshot* pSnapshot);
 
     bool has_snapshot() const;
@@ -86,13 +95,19 @@ public:
 
     QVariant columnData(int column, int role) const;
 
+   void setCallTreeApiCallColumnData(QVariant name);
+
     int row() const;
+
+private:
+   void setColumnData(QVariant data, int column);
 
 private:
     QList<vogleditor_apiCallTreeItem*> m_childItems;
     QVariant m_columnData[VOGL_MAX_ACTC];
     vogleditor_apiCallTreeItem* m_parentItem;
-    vogleditor_apiCallItem* m_pApiCallItem;
+    vogleditor_apiCallItem* m_pApiCallItem; // LLL remove this
+    vogleditor_groupItem* m_pGroupItem;
     vogleditor_frameItem* m_pFrameItem;
     vogleditor_QApiCallTreeModel* m_pModel;
     int m_localRowIndex;
