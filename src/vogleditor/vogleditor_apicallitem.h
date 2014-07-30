@@ -26,12 +26,11 @@
 #ifndef VOGLEDITOR_APICALLITEM_H
 #define VOGLEDITOR_APICALLITEM_H
 
-#include <QList>
-
 #include "vogleditor_snapshotitem.h"
 
 // predeclared classes
 class vogleditor_frameItem;
+class vogleditor_groupItem;
 class vogl_trace_packet;
 
 class vogleditor_apiCallItem : public vogleditor_snapshotItem
@@ -103,6 +102,7 @@ public:
 
 private:
     vogleditor_frameItem* m_pParentFrame;
+    vogleditor_groupItem* m_pParentGroup;
     const vogl_trace_gl_entrypoint_packet m_glPacket;
     vogl_trace_packet* m_pTracePacket;
 

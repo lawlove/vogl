@@ -34,6 +34,7 @@
 #include "vogl_trace_stream_types.h"
 #include "vogleditor_gl_state_snapshot.h"
 #include "vogleditor_frameitem.h"
+#include "vogleditor_groupitem.h"
 #include "vogleditor_apicalltreeitem.h"
 #include "vogleditor_output.h"
 
@@ -62,7 +63,7 @@ vogleditor_QApiCallTreeModel::~vogleditor_QApiCallTreeModel()
 
 bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
 {
-    vogleditor_apiCallTreeItem* parent = m_rootItem;
+    vogleditor_apiCallTreeItem* parentRoot = m_rootItem;
     const vogl_trace_stream_start_of_file_packet &sof_packet = pTrace_reader->get_sof_packet();
     VOGL_NOTE_UNUSED(sof_packet);
 
@@ -73,8 +74,9 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
     // this will remain in the pending state until the first
     // api call is seen, then it will be made the CurFrame and
     // appended to the parent
-    vogleditor_frameItem* pCurFrame = NULL;
-    vogleditor_apiCallTreeItem* pCurParent = parent;
+    vogleditor_frameItem *pCurFrame = NULL;
+    vogleditor_groupItem *pCurGroup = NULL;
+    vogleditor_apiCallTreeItem* pCurParent = parentRoot;
 
     // Make a PendingSnapshot that may or may not be populated when reading the trace.
     // This snapshot will be assigned to the next API call that occurs.
@@ -122,7 +124,9 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
 
             if (!pTrace_packet->check())
             {
-                vogleditor_output_error("GL entrypoint packet failed consistency check. Please make sure the trace was made with the most recent version of VOGL.");
+                vogleditor_output_error("GL entrypoint packet failed"
+                " consistency check. Please make sure the trace was made with"
+                " the most recent version of VOGL.");
                 return false;
             }
 
@@ -216,11 +220,28 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             }
 
             // if we don't have a current frame, make a new frame node
-            // and append it to the parent
+            // and append it to the parentRoot
             if (pCurFrame == NULL)
             {
+// New Frame item
                 pCurFrame = vogl_new(vogleditor_frameItem, total_swaps);
+
+// >>LLL Make a new group item ?
+                pCurGroup = vogl_new(vogleditor_groupItem, pCurFrame);
+                pCurFrame->appendGroup(pCurGroup);
+// <<LLL
+
+// New Frame tree node
                 vogleditor_apiCallTreeItem* pNewFrameNode = vogl_new(vogleditor_apiCallTreeItem, pCurFrame, pCurParent);
+
+// >>LLL Make a new group treenode and branch it off the Frame treenode
+//       Frame treenodes should only consist of group-type treenodes [children]
+//       e.g., group node or nesting node, .e.g., glDebugPush/PopGroup
+
+                vogleditor_apiCallTreeItem* pNewGroupNode = vogl_new(vogleditor_apiCallTreeItem, pNewFrameNode);
+                pNewFrameNode->appendChild(pNewGroupNode);
+// <<LLL
+// pCurParent should be parentRoot when adding frame
                 pCurParent->appendChild(pNewFrameNode);
                 m_itemList.append(pNewFrameNode);
 
@@ -231,7 +252,9 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 }
 
                 // update current parent
-                pCurParent = pNewFrameNode;
+//>>LLL Make group the new current parent
+                pCurParent = pNewGroupNode;
+//<<LLL         pCurParent = pNewFrameNode;
             }
 
             // make item and node for the api call
@@ -252,14 +275,18 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             {
                 total_swaps++;
 
+                // TODO: close up any groups first
+
                 // reset the CurParent back to the original parent so that the next frame will be at the root level
-                pCurParent = parent;
+                pCurParent = parentRoot;
 
                 // reset the CurFrame so that a new frame node will be created on the next api call
                 pCurFrame = NULL;
             }
             else if (vogl_is_start_nested_entrypoint(entrypoint_id))
             {
+                // TODO: start a new group within the nested list
+
                 // Nest logically paired blocks of gl calls including terminating
                 // nest call
                 pCurParent = item;
@@ -268,9 +295,31 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             {
                 // move the parent back one level of the hierarchy, to its own parent
                 // (but not past Frame parent [e.g., unpaired "end" operation])
-                if (pCurParent->parent() != parent)
+                if (pCurParent->parent() != parentRoot)
                     pCurParent = pCurParent->parent();
             }
+
+// >>LLL Close group on draw and start new group
+            if (vogl_is_draw_entrypoint(entrypoint_id))
+            {
+                // Make sure we're not a frame
+                if (pCurParent->parent() != parentRoot)
+                {
+                    // Set group node column data
+                    pCurParent->setCallTreeApiCallColumnData("Render");
+  
+                    // Stop this group and move back to prev parent
+                    pCurParent = pCurParent->parent();
+                }
+                else // this is a frame
+                {
+                    // Start a new group
+                    vogleditor_apiCallTreeItem* pNewGroupNode = vogl_new(vogleditor_apiCallTreeItem, pCurParent);
+                    pCurParent->parent()->appendChild(pNewGroupNode);
+                    pCurParent = pNewGroupNode;
+                }
+            }
+// <<LLL
         }
 
         if (pTrace_reader->get_packet_type() == cTSPTEOF)

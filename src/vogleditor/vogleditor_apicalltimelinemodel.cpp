@@ -93,7 +93,10 @@ void vogleditor_apiCallTimelineModel::refresh()
             vogleditor_apiCallTreeItem* pFrameItem = m_pRootApiCall->child(c);
             if (pFrameItem->childCount() > 0)
             {
-                frameStart = u64ToFloat(pFrameItem->child(0)->apiCallItem()->startTime() - m_rawBaseTime);
+              // >>LLL
+                frameStart = u64ToFloat(pFrameItem->startTime() - m_rawBaseTime);
+              // <<LLL
+              //frameStart = u64ToFloat(pFrameItem->child(0)->apiCallItem()->startTime() - m_rawBaseTime);
                 vogleditor_timelineItem* pFrameTimelineItem = new vogleditor_timelineItem(frameStart, m_rootItem);
                 pFrameTimelineItem->setFrameItem(pFrameItem->frameItem());
                 m_rootItem->appendChild(pFrameTimelineItem);

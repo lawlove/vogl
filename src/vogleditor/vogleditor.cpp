@@ -62,6 +62,7 @@
 #include "vogleditor_qvertexarrayexplorer.h"
 #include "vogleditor_apicalltreeitem.h"
 #include "vogleditor_frameitem.h"
+#include "vogleditor_groupitem.h"
 
 #define VOGLEDITOR_DISABLE_STATE_TAB(tab) ui->tabWidget->setTabEnabled(ui->tabWidget->indexOf(tab), false);
 #define VOGLEDITOR_ENABLE_STATE_TAB(tab) ui->tabWidget->setTabEnabled(ui->tabWidget->indexOf(tab), true);
@@ -2468,7 +2469,6 @@ void VoglEditor::onApiCallSelected(const QModelIndex &index, bool bAllowStateSna
         return;
     }
 
-    vogleditor_frameItem* pFrameItem = pCallTreeItem->frameItem();
     vogleditor_apiCallItem* pApiCallItem = pCallTreeItem->apiCallItem();
 
     if (bAllowStateSnapshot && pCallTreeItem == m_pCurrentCallTreeItem)
@@ -2512,6 +2512,16 @@ void VoglEditor::onApiCallSelected(const QModelIndex &index, bool bAllowStateSna
             ui->backtraceText->setText(tmp);
         }
     }
+
+    setTimeline(pCallTreeItem);
+}
+
+void VoglEditor::setTimeline(vogleditor_apiCallTreeItem* pCallTreeItem)
+{
+    vogleditor_frameItem* pFrameItem = pCallTreeItem->frameItem();
+//LLL
+//  vogleditor_groupItem* pGroupItem = pCallTreeItem->groupItem();
+    vogleditor_apiCallItem* pApiCallItem = pCallTreeItem->apiCallItem();
 
     m_pCurrentCallTreeItem = pCallTreeItem;
 

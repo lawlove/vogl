@@ -50,6 +50,11 @@ public:
         return m_frameNumber;
     }
 
+    void appendGroup(vogleditor_groupItem* pItem)
+    {
+        m_groupList.append(pItem);
+    }
+
     void appendCall(vogleditor_apiCallItem* pItem)
     {
         m_apiCallList.append(pItem);
@@ -78,9 +83,34 @@ public:
             return false;
         }
 
-        start = m_apiCallList[0]->startTime();
-        end = m_apiCallList[numCalls-1]->endTime();
+        start = startTime();
+        end = endTime();
         return true;
+    }
+
+    uint64_t startTime() const
+    {
+        return apiCallStartTime(0);
+    }
+
+    uint64_t endTime() const
+    {
+        return apiCallEndTime(callCount()-1);
+    }
+
+    uint64_t apiCallStartTime(uint index) const
+    {
+        return m_apiCallList[index]->startTime();
+    }
+
+    uint64_t apiCallEndTime(uint index) const
+    {
+        return m_apiCallList[index]->endTime();
+    }
+
+    uint64_t duration() const
+    {
+        return (endTime() - startTime());
     }
 
     void set_screenshot_filename(const dynamic_string& filename)
@@ -96,6 +126,7 @@ public:
 private:
     uint64_t m_frameNumber;
     QList<vogleditor_apiCallItem*> m_apiCallList;
+    QList<vogleditor_groupItem*> m_groupList;
 
     dynamic_string m_screenshot_filename;
 };
