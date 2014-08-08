@@ -219,29 +219,17 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 funcCall.append(paramStr.c_str());
             }
 
+// LLL-------------------------------------------------------------------
+// Check if a new frame node needs to be created
+// LLL-------------------------------------------------------------------
             // if we don't have a current frame, make a new frame node
             // and append it to the parentRoot
             if (pCurFrame == NULL)
             {
-// New Frame item
                 pCurFrame = vogl_new(vogleditor_frameItem, total_swaps);
-
-// >>LLL Make a new group item ?
-                pCurGroup = vogl_new(vogleditor_groupItem, pCurFrame);
-                pCurFrame->appendGroup(pCurGroup);
-// <<LLL
-
-// New Frame tree node
                 vogleditor_apiCallTreeItem* pNewFrameNode = vogl_new(vogleditor_apiCallTreeItem, pCurFrame, pCurParent);
-
-// >>LLL Make a new group treenode and branch it off the Frame treenode
-//       Frame treenodes should only consist of group-type treenodes [children]
-//       e.g., group node or nesting node, .e.g., glDebugPush/PopGroup
-
-                vogleditor_apiCallTreeItem* pNewGroupNode = vogl_new(vogleditor_apiCallTreeItem, pNewFrameNode);
-                pNewFrameNode->appendChild(pNewGroupNode);
-// <<LLL
-// pCurParent should be parentRoot when adding frame
+                // LLL pCurParent should be parentRoot when adding frame
+                // LLL i.e., "parentRoot->appendChild(pNewFrameNode);"
                 pCurParent->appendChild(pNewFrameNode);
                 m_itemList.append(pNewFrameNode);
 
@@ -252,12 +240,112 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 }
 
                 // update current parent
-//>>LLL Make group the new current parent
-                pCurParent = pNewGroupNode;
-//<<LLL         pCurParent = pNewFrameNode;
-            }
+                pCurParent = pNewFrameNode;
+            } // pCurFrame == NULL
+// LLL-------------------------------------------------------------------
+// Start processing next entity after possible new frame node created
+// LLL-------------------------------------------------------------------
+            // Frame treenodes should only consist of (child) group-type
+            // treenodes, e.g., group or nesting nodes(glPush/PopGroups)
 
-            // make item and node for the api call
+            // ---- Is this a start_nested_entrypoint (glPushDebugGroup)?
+            //if (vogl_is_start_nested_entrypoint(entrypoint_id))
+            if (entrypoint_id == VOGL_ENTRYPOINT_glPushDebugGroup)
+            {
+                // ---- Is parent a group and grandparent a frame?
+                //
+                //      -> Do we need a parent check - just grandparent?
+                //      -> Do we need to check grandparent for null?
+                // ---- 
+                if (pCurParent->isGroup())
+                {
+                    if (pCurParent->parent()->isFrame())
+                    {
+                        // Make 1st level glPushDebugGroup get added as Frame child
+                        pCurParent = pCurParent->parent();  // (set parent back toframe)
+                    }
+                    else // check for sequential glPushDebugGroup apicalls
+                    {
+                        // If the previous apicall was a glPushDebugGroup, then
+                        // a group had been created as its first child and set
+                        // as, and is now, the new pCurParent. 
+                        //
+                        // For a sequential glPushdDebugGroup apicall, undo that
+                        // operation so this one will be the first child instead
+                        // (i.e., replace the previous (group) first child with
+                        // this one)
+                        //
+                        // Get grandparent entrypoint_id
+                        uint16_t id = pCurParent->parent()->apiCallItem()->getGLPacket()->m_entrypoint_id;
+                        gl_entrypoint_id_t grandparent_call_id = static_cast<gl_entrypoint_id_t>(id);
+
+                        // Check if grandparent is glPushDebugGroup
+                        if (vogl_is_start_nested_entrypoint(grandparent_call_id))
+                        {
+                            delete_group(pCurFrame, pCurParent);
+#ifdef LLL
+                            // 1) Remove vogleditor_groupItem (pCurParent) object from
+                            //    frame's group children (pop frameItem's group list) 
+                            //    and delete it.
+                            vogl_delete(pCurFrame->popGroup());
+
+                            // 2) Clear pCurParent (group treenode) from both
+                            //    parent (glPushDebugGroup) and m_itemList
+                            pCurParent->parent()->popChild();
+                            m_itemList.removeLast();
+
+                            // 3) Set pCurParent to pCurParent->parent()
+                            vogleditor_apiCallTreeItem *pOldParent = pCurParent;
+                            pCurParent = pCurParent->parent();
+
+                            // 4) Delete old pCurParent
+                            vogl_delete(pOldParent);
+#endif //LLL
+                        }
+                    }
+                }
+            }
+            //else if (vogl_is_end_nested_entrypoint(entrypoint_id))
+            else if (entrypoint_id == VOGL_ENTRYPOINT_glPopDebugGroup)
+            {
+                // if parent is group, close it; set curent parent to group's
+                // parent (which should be glPushDebugGroup)
+                if (pCurParent->isGroup())
+                {
+                    pCurParent = pCurParent->parent();
+                }
+            }
+            // ---- not a start_ or end_nested_entrypoint (glPush/PopDebugGroup)
+            //else
+            else if ((entrypoint_id == VOGL_ENTRYPOINT_glBegin))
+            {
+                if (pCurParent->isGroup())
+                {
+                    // delete empty group and make grandparent the new parent
+                    if (pCurParent->childCount() == 0)
+                    {
+                        delete_group(pCurFrame, pCurParent);
+                    }
+                    else // close group and let this one start a new group
+                    {
+                       pCurParent = pCurParent->parent();
+                    }
+                }
+            }
+            else
+            {
+                // ---- If at frame level, start a new group
+                if (pCurParent->isFrame())
+                {
+                    // ---- Start a new group and make it the current parent
+                    pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
+                }
+            } // not a start_ or end_nested_entrypoint
+
+// LLL-------------------------------------------------------------------
+// Create the tree node to added to the current parent
+// LLL-------------------------------------------------------------------
+            // make item for the api call
             vogleditor_apiCallItem* pCallItem = vogl_new(vogleditor_apiCallItem, pCurFrame, pTrace_packet, *pGL_packet);
             pCurFrame->appendCall(pCallItem);
 
@@ -267,10 +355,14 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 pPendingSnapshot = NULL;
             }
 
+            // make node for the api call
             vogleditor_apiCallTreeItem* item = vogl_new(vogleditor_apiCallTreeItem, funcCall, pCallItem, pCurParent);
             pCurParent->appendChild(item);
             m_itemList.append(item);
 
+// LLL-------------------------------------------------------------------
+// Check for apicall terminators
+// LLL-------------------------------------------------------------------
             if (vogl_is_swap_buffers_entrypoint(entrypoint_id))
             {
                 total_swaps++;
@@ -285,25 +377,53 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             }
             else if (vogl_is_start_nested_entrypoint(entrypoint_id))
             {
-                // TODO: start a new group within the nested list
-
-                // Nest logically paired blocks of gl calls including terminating
-                // nest call
-                pCurParent = item;
+                if (entrypoint_id == VOGL_ENTRYPOINT_glPushDebugGroup)
+                {
+                    // Add a new "group" child to glPushDebugGroup and make it
+                    // new parent
+                    vogleditor_apiCallTreeItem* pNewGroupNode = create_new_group(pCurFrame, pCurGroup, item);
+                    pCurParent = pNewGroupNode;
+                }
+                else
+                {
+                    pCurParent = item;
+                }
             }
             else if (vogl_is_end_nested_entrypoint(entrypoint_id))
             {
-                // move the parent back one level of the hierarchy, to its own parent
-                // (but not past Frame parent [e.g., unpaired "end" operation])
-                if (pCurParent->parent() != parentRoot)
+                // move parent up one level (but not past Frame parent [e.g.,
+                // if this is an unpaired "end" nested operation])
+                if (!pCurParent->isFrame())
+                {
+                    if (entrypoint_id == VOGL_ENTRYPOINT_glPopDebugGroup)
+                    {
+                        QString apiCall = (pCurParent->columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
+                        QString sec, name;
+                        int start = 1;
+                        while (!(sec=apiCall.section('\'', start, start)).isEmpty())
+                        {
+                            name.append(sec);
+                            start +=2;
+                        }
+                        pCurParent->setCallTreeApiCallColumnData(QVariant("\"" + name + "\"" + " group"));
+                    }
                     pCurParent = pCurParent->parent();
+
+                    // start a new group
+                    pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
+                }
             }
 
 // >>LLL Close group on draw and start new group
             if (vogl_is_draw_entrypoint(entrypoint_id))
             {
-                // Make sure we're not a frame
-                if (pCurParent->parent() != parentRoot)
+                if (pCurParent->isFrame()) // (should never be frame tho)
+                {
+                    // Start a new group
+                    pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
+                }
+                // not a frame, close group and set to "Render"
+                else if (pCurParent->isGroup())
                 {
                     // Set group node column data
                     pCurParent->setCallTreeApiCallColumnData("Render");
@@ -311,16 +431,9 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                     // Stop this group and move back to prev parent
                     pCurParent = pCurParent->parent();
                 }
-                else // this is a frame
-                {
-                    // Start a new group
-                    vogleditor_apiCallTreeItem* pNewGroupNode = vogl_new(vogleditor_apiCallTreeItem, pCurParent);
-                    pCurParent->parent()->appendChild(pNewGroupNode);
-                    pCurParent = pNewGroupNode;
-                }
             }
 // <<LLL
-        }
+        } // if cTSPTGLEntrypoint
 
         if (pTrace_reader->get_packet_type() == cTSPTEOF)
         {
@@ -331,6 +444,54 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
     }
 
     return found_eof_packet;
+}
+
+void vogleditor_QApiCallTreeModel::delete_group(vogleditor_frameItem  *pCurFrameObj,
+                                                vogleditor_apiCallTreeItem *&pParentNode)
+{
+    // Assumptions 
+    // ------------
+    // grandparent (pCurParent->parent() is a glPushDebugGroup apiCall treenode
+    //
+    // pCurrentParent is a group (State/Render) treenode
+    //
+    // pCurParent treenode's corresponding group item object was the last added
+    // group item added to the frame's group item list
+
+    // Remove parent frame's last appended group item (vogleditor_groupItem)
+    // and delete it.
+    vogl_delete(pCurFrameObj->popGroup());
+
+    // Clear pCurParent (group treenode) from both parent (glPushDebugGroup)
+    // and m_itemList
+    pParentNode->parent()->popChild();
+    m_itemList.removeLast();
+
+    // Set pCurParent to pCurParent->parent()
+    vogleditor_apiCallTreeItem *pOldParent = pParentNode;
+    pParentNode = pParentNode->parent();
+
+    // 4) Delete old pCurParent
+    vogl_delete(pOldParent);
+}
+
+vogleditor_apiCallTreeItem *vogleditor_QApiCallTreeModel::create_new_group(vogleditor_frameItem  *pCurFrameObj,
+                                                                           vogleditor_groupItem *&pCurGroupObj,
+                                                                           vogleditor_apiCallTreeItem *pParentNode)
+{
+// Description:
+//    1) create group
+//    2) add group to (parent)
+
+    //LLL Make a new group item ... unused as yet
+    pCurGroupObj = vogl_new(vogleditor_groupItem, pCurFrameObj);
+    pCurFrameObj->appendGroup(pCurGroupObj); // (move this to constructor?)
+
+    //LLL Make a new group node and insert into tree
+    vogleditor_apiCallTreeItem *pNewGroupNode = vogl_new(vogleditor_apiCallTreeItem, pCurGroupObj, pParentNode);
+    pParentNode->appendChild(pNewGroupNode);
+    m_itemList.append(pNewGroupNode);
+    return pNewGroupNode;
 }
 
 QModelIndex vogleditor_QApiCallTreeModel::index(int row, int column, const QModelIndex &parent) const
