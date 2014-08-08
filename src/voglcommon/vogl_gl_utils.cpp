@@ -1003,7 +1003,7 @@ bool vogl_is_draw_entrypoint(gl_entrypoint_id_t id)
         case VOGL_ENTRYPOINT_glMultiDrawElementsIndirect:
         case VOGL_ENTRYPOINT_glMultiDrawElementsIndirectAMD:
         case VOGL_ENTRYPOINT_glMultiDrawRangeElementArrayAPPLE:
-        //case VOGL_ENTRYPOINT_glEnd:
+        case VOGL_ENTRYPOINT_glEnd:
             return true;
         default:
             break;
@@ -1038,7 +1038,7 @@ bool vogl_is_clear_entrypoint(gl_entrypoint_id_t id)
 bool vogl_is_start_nested_entrypoint(gl_entrypoint_id_t id)
 {
     switch (id) {
-        case VOGL_ENTRYPOINT_glBegin:
+      //case VOGL_ENTRYPOINT_glBegin:
         case VOGL_ENTRYPOINT_glPushDebugGroup:
           return true;
         default:
@@ -1053,7 +1053,7 @@ bool vogl_is_start_nested_entrypoint(gl_entrypoint_id_t id)
 bool vogl_is_end_nested_entrypoint(gl_entrypoint_id_t id)
 {
     switch (id) {
-        case VOGL_ENTRYPOINT_glEnd:
+      //case VOGL_ENTRYPOINT_glEnd:
         case VOGL_ENTRYPOINT_glPopDebugGroup:
           return true;
         default:
