@@ -107,7 +107,7 @@ void vogleditor_apiCallTimelineModel::refresh()
             }
         }
 
-        // recursively add each children
+        // recursively add children
         for (int frameIndex = 0; frameIndex < numChildren; frameIndex++)
         {
             vogleditor_apiCallTreeItem* pFrameChild = m_pRootApiCall->child(frameIndex);

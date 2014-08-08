@@ -40,6 +40,7 @@
 vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_QApiCallTreeModel* pModel)
     : m_parentItem(NULL),
       m_pApiCallItem(NULL),
+      m_pGroupItem(NULL),
       m_pFrameItem(NULL),
       m_pModel(pModel),
       m_localRowIndex(0)
@@ -57,6 +58,7 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_QApiCallTreeMo
 vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_frameItem* frameItem, vogleditor_apiCallTreeItem* parent)
     : m_parentItem(parent),
       m_pApiCallItem(NULL),
+      m_pGroupItem(NULL),
       m_pFrameItem(frameItem),
       m_pModel(NULL),
       m_localRowIndex(0)
@@ -75,9 +77,10 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_frameItem* fra
 }
 
 // Constructor for group nodes
-vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_apiCallTreeItem* parent)
+vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_groupItem* groupItem, vogleditor_apiCallTreeItem* parent)
  : m_parentItem(parent),
    m_pApiCallItem(NULL),
+   m_pGroupItem(groupItem),
    m_pFrameItem(NULL),
    m_pModel(NULL),
    m_localRowIndex(0)
@@ -93,6 +96,7 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_apiCallTreeIte
 vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(QString nodeText, vogleditor_apiCallItem* apiCallItem, vogleditor_apiCallTreeItem* parent)
     : m_parentItem(parent),
       m_pApiCallItem(apiCallItem),
+      m_pGroupItem(NULL),
       m_pFrameItem(NULL),
       m_pModel(NULL),
       m_localRowIndex(0)
@@ -148,6 +152,11 @@ void vogleditor_apiCallTreeItem::appendChild(vogleditor_apiCallTreeItem* pChild)
 {
     pChild->m_localRowIndex = m_childItems.size();
     m_childItems.append(pChild);
+}
+
+void vogleditor_apiCallTreeItem::popChild()
+{
+    m_childItems.removeLast();
 }
 
 int vogleditor_apiCallTreeItem::childCount() const

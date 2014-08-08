@@ -33,6 +33,9 @@ class QVariant;
 class vogleditor_apiCallTreeItem;
 class vogl_ctypes;
 class vogl_trace_file_reader;
+class vogleditor_groupItem;
+class vogleditor_frameItem;
+
 struct vogl_trace_gl_entrypoint_packet;
 
 class vogleditor_QApiCallTreeModel : public QAbstractItemModel
@@ -59,6 +62,12 @@ public:
     {
         return m_rootItem;
     }
+
+    vogleditor_apiCallTreeItem* create_new_group(vogleditor_frameItem  *pFrameObj,
+                                                 vogleditor_groupItem *&pGroupObj,
+                                                 vogleditor_apiCallTreeItem *pParentNode);
+    void delete_group(vogleditor_frameItem  *pCurFrameObj,
+                      vogleditor_apiCallTreeItem *&pParentNode);
 
     void set_highlight_search_string(const QString searchString);
     QModelIndex find_prev_search_result(vogleditor_apiCallTreeItem* start, const QString searchText);

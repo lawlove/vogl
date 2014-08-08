@@ -62,7 +62,7 @@ public:
     vogleditor_apiCallTreeItem(vogleditor_frameItem* frameItem, vogleditor_apiCallTreeItem* parent);
 
     // Constructor for group nodes
-    vogleditor_apiCallTreeItem(vogleditor_apiCallTreeItem* parent);
+    vogleditor_apiCallTreeItem(vogleditor_groupItem* groupItem, vogleditor_apiCallTreeItem* parent);
 
     // Constructor for apiCall nodes
     vogleditor_apiCallTreeItem(QString nodeText, vogleditor_apiCallItem* apiCallItem, vogleditor_apiCallTreeItem* parent);
@@ -72,6 +72,7 @@ public:
     vogleditor_apiCallTreeItem* parent() const;
 
     void appendChild(vogleditor_apiCallTreeItem* pChild);
+    void popChild();
 
     int childCount() const;
 
@@ -98,6 +99,11 @@ public:
    void setCallTreeApiCallColumnData(QVariant name);
 
     int row() const;
+
+   bool isApiCall() const { return m_pApiCallItem != NULL; }
+   bool isGroup()   const { return m_pGroupItem   != NULL; }
+   bool isFrame()   const { return m_pFrameItem   != NULL; }
+   bool isRoot()    const { return !(isApiCall() | isGroup() | isFrame()); }
 
 private:
    void setColumnData(QVariant data, int column);
