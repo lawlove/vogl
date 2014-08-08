@@ -317,6 +317,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             }
             // ---- not a start_ or end_nested_entrypoint (glPush/PopDebugGroup)
             //else
+#ifdef LLL
             else if ((entrypoint_id == VOGL_ENTRYPOINT_glBegin))
             {
                 if (pCurParent->isGroup())
@@ -332,6 +333,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                     }
                 }
             }
+#endif //LL
             else
             {
                 // ---- If at frame level, start a new group
@@ -410,7 +412,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                     pCurParent = pCurParent->parent();
 
                     // start a new group
-                    pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
+                    //pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
                 }
             }
 
