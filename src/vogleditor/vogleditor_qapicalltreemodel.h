@@ -68,6 +68,8 @@ public:
                                                  vogleditor_apiCallTreeItem *pParentNode);
     void delete_group(vogleditor_frameItem  *pCurFrameObj,
                       vogleditor_apiCallTreeItem *&pParentNode);
+    void delete_apiCall(vogleditor_frameItem  *pCurFrameObj,
+                        vogleditor_apiCallTreeItem *&pParentNode);
 
     void set_highlight_search_string(const QString searchString);
     QModelIndex find_prev_search_result(vogleditor_apiCallTreeItem* start, const QString searchText);
