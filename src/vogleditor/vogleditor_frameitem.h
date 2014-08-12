@@ -55,6 +55,11 @@ public:
         m_groupList.append(pItem);
     }
 
+    vogleditor_apiCallItem* popApiCall()
+    {
+        return m_apiCallList.takeLast();
+    }
+
     vogleditor_groupItem* popGroup()
     {
         return m_groupList.takeLast();
