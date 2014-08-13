@@ -347,32 +347,6 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                     // ---- Start a new group and make it the current parent
                     pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
                 }
-// -- test
-                // if (prev call was a glend, start a new group)
-                if (!m_itemList.isEmpty())
-                {
-                    if (m_itemList.last()->apiCallItem())
-                    {
-                        uint16_t id = m_itemList.last()->apiCallItem()->getGLPacket()->m_entrypoint_id;
-                        gl_entrypoint_id_t prevApiCallId = static_cast<gl_entrypoint_id_t>(id);
-
-                        if (prevApiCallId == VOGL_ENTRYPOINT_glEnd)
-                        {
-                            pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
-                        }
-                    }
-                }
-// -- test
-#ifdef LLL
-                // if (prev call was a glend, start a new group)
-                uint16_t id = m_itemList.last()->apiCallItem()->getGLPacket()->m_entrypoint_id;
-                gl_entrypoint_id_t apiCallId = static_cast<gl_entrypoint_id_t>(id);
-
-                if (pCurParent->isFrame() || (apiCallId == VOGL_ENTRYPOINT_glEnd))
-                {
-                    pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
-                }
-#endif //LLL
             } // not a start_ or end_nested_entrypoint
 
 // LLL-------------------------------------------------------------------
@@ -453,11 +427,6 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 // if this is an unpaired "end" nested operation])
                 if (!pCurParent->isFrame())
                 {
-                    while (pCurParent->isGroup())
-                    {
-                        pCurParent = pCurParent->parent();
-                    }
-
                     // Parse out parent glPushDebugGroup messsage
                     QString apiCall = (pCurParent->columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
                     QString sec, name;
