@@ -63,7 +63,6 @@ vogleditor_QApiCallTreeModel::~vogleditor_QApiCallTreeModel()
 
 bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
 {
-    vogleditor_apiCallTreeItem* parentRoot = m_rootItem;
     const vogl_trace_stream_start_of_file_packet &sof_packet = pTrace_reader->get_sof_packet();
     VOGL_NOTE_UNUSED(sof_packet);
 
@@ -76,6 +75,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
     // appended to the parent
     vogleditor_frameItem *pCurFrame = NULL;
     vogleditor_groupItem *pCurGroup = NULL;
+    vogleditor_apiCallTreeItem* parentRoot = m_rootItem;
     vogleditor_apiCallTreeItem* pCurParent = parentRoot;
 
     // Make a PendingSnapshot that may or may not be populated when reading the trace.
@@ -278,13 +278,23 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                         // child with this [pseudo-group] apiCall
                         //
                         // Get grandparent entrypoint_id
-                        uint16_t id = pCurParent->parent()->apiCallItem()->getGLPacket()->m_entrypoint_id;
-                        gl_entrypoint_id_t grandparent_entrypoint_id = static_cast<gl_entrypoint_id_t>(id);
-
-                        // Check if grandparent is glPushDebugGroup
-                        if (grandparent_entrypoint_id == VOGL_ENTRYPOINT_glPushDebugGroup)
+                        if (pCurParent->parent()->isApiCall())
                         {
-                            delete_group(pCurFrame, pCurParent);
+                            uint16_t id = pCurParent->parent()->apiCallItem()->getGLPacket()->m_entrypoint_id;
+                            gl_entrypoint_id_t grandpa_entrypoint_id = static_cast<gl_entrypoint_id_t>(id);
+
+                            // Check if grandpa is glPushDebugGroup
+                            if (grandpa_entrypoint_id == VOGL_ENTRYPOINT_glPushDebugGroup)
+                            {
+                                if (pCurParent->childCount() == 0)
+                                {
+                                   delete_group(pCurFrame, pCurParent);
+                                }
+                                else
+                                {
+                                    pCurParent = pCurParent->parent();
+                                }
+                            }
                         }
                     }
                 }
@@ -295,8 +305,10 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             //else if (vogl_is_end_nested_entrypoint(entrypoint_id))
             else if (entrypoint_id == VOGL_ENTRYPOINT_glPopDebugGroup)
             {
-                // if parent is group (should be glPushDebugGroup), close it;
-                // set curent parent to grandparent (group's parent)
+                // if parent is group (should be and grandparent should be
+                // glPushDebugGroup), close it; set curent parent to
+                // grandparent (group's parent) which will get popped
+                // after glPopDebugGroup tree node is processed
                 if (pCurParent->isGroup())
                 {
                     pCurParent = pCurParent->parent();
@@ -316,18 +328,15 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                     {
                         delete_group(pCurFrame, pCurParent);
                     }
-                    else
-                    {
                     //  Start a new (render) group if not already in one
                     //  (Will be set to "Render" on glEnd)
-                        QString apiCall = (pCurParent->columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
-                        if (apiCall != "Render")
-                        {
-                            // close this group by setting parent as curParent.
-                            // Add new group to parent and make group curParent.
-                            pCurParent = pCurParent->parent();
-                            pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
-                        }
+                    QString apiCall = (pCurParent->columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
+                    if (apiCall != "Render")
+                    {
+                        // close this group by setting parent as curParent.
+                        // Add new group to parent and make group curParent.
+                        pCurParent = pCurParent->parent();
+                        pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
                     }
                 }
             }
@@ -347,10 +356,37 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                     // ---- Start a new group and make it the current parent
                     pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
                 }
+// -- test
+                // if (prev call was a glend, start a new group)
+                else if (!m_itemList.isEmpty())
+                {
+                    if (m_itemList.last()->apiCallItem())
+                    {
+                        uint16_t id = m_itemList.last()->apiCallItem()->getGLPacket()->m_entrypoint_id;
+                        gl_entrypoint_id_t prevApiCallId = static_cast<gl_entrypoint_id_t>(id);
+
+                        if (prevApiCallId == VOGL_ENTRYPOINT_glEnd)
+                        {
+                            //pCurParent = pCurParent->parent();
+                            pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
+                        }
+                    }
+                }
+// -- test
+#ifdef LLL
+                // if (prev call was a glend, start a new group)
+                uint16_t id = m_itemList.last()->apiCallItem()->getGLPacket()->m_entrypoint_id;
+                gl_entrypoint_id_t apiCallId = static_cast<gl_entrypoint_id_t>(id);
+
+                if (pCurParent->isFrame() || (apiCallId == VOGL_ENTRYPOINT_glEnd))
+                {
+                    pCurParent = create_new_group(pCurFrame, pCurGroup, pCurParent);
+                }
+#endif //LLL
             } // not a start_ or end_nested_entrypoint
 
 // LLL-------------------------------------------------------------------
-// Create and append apiCall to current parent treenode
+// Process apiCall: create apiCall treenode and append to current parent
 // LLL-------------------------------------------------------------------
             vogleditor_apiCallItem* pCallItem = NULL;
             vogleditor_apiCallTreeItem* item = NULL;
@@ -375,6 +411,8 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
 // LLL-------------------------------------------------------------------
 // Check for apicall terminators
 // LLL-------------------------------------------------------------------
+// swap:
+// LLL-------------------------------------------------------------------
             if (vogl_is_swap_buffers_entrypoint(entrypoint_id))
             {
                 total_swaps++;
@@ -388,7 +426,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 pCurFrame = NULL;
             }
 // LLL-------------------------------------------------------------------
-// glBegin
+// glBegin:
 // LLL-------------------------------------------------------------------
             else if (entrypoint_id == VOGL_ENTRYPOINT_glBegin)
             {
@@ -402,7 +440,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 pCurParent = item;
             }
 // LLL-------------------------------------------------------------------
-// glEnd
+// glEnd:
 // LLL-------------------------------------------------------------------
             else if (entrypoint_id == VOGL_ENTRYPOINT_glEnd)
             {
@@ -410,7 +448,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                     pCurParent = pCurParent->parent();
             }
 // LLL-------------------------------------------------------------------
-// glPushDebugGroup
+// glPushDebugGroup:
 // LLL-------------------------------------------------------------------
             else if (entrypoint_id == VOGL_ENTRYPOINT_glPushDebugGroup)
             {
@@ -419,7 +457,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 pCurParent = create_new_group(pCurFrame, pCurGroup, item);
             }
 // LLL-------------------------------------------------------------------
-// glPopDebugGroup
+// glPopDebugGroup:
 // LLL-------------------------------------------------------------------
             else if (entrypoint_id == VOGL_ENTRYPOINT_glPopDebugGroup)
             {
@@ -427,6 +465,11 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 // if this is an unpaired "end" nested operation])
                 if (!pCurParent->isFrame())
                 {
+                    while (pCurParent->isGroup())
+                    {
+                        pCurParent = pCurParent->parent();
+                    }
+
                     // Parse out parent glPushDebugGroup messsage
                     QString apiCall = (pCurParent->columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
                     QString sec, name;
@@ -449,7 +492,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 }
             }
 // LLL-------------------------------------------------------------------
-// Draw
+// Draw:
 // LLL-------------------------------------------------------------------
 // >>LLL Close group on draw and start new group
             if (vogl_is_draw_entrypoint(entrypoint_id))
@@ -467,9 +510,11 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                         // Set group node column data
                         pCurParent->setCallTreeApiCallColumnData("Render");
                     }
-  
-                    // Stop this group and move back to prev parent
-                    //pCurParent = pCurParent->parent();
+                    else
+                    {
+                        // Stop this group and move back to prev parent
+                        pCurParent = pCurParent->parent();
+                    }
                 }
             }
 // <<LLL
@@ -531,7 +576,7 @@ void vogleditor_QApiCallTreeModel::delete_group(vogleditor_frameItem  *pCurFrame
     vogleditor_apiCallTreeItem *pOldParent = pParentNode;
     pParentNode = pParentNode->parent();
 
-    // 4) Delete old pCurParent
+    // Delete old pCurParent
     vogl_delete(pOldParent);
 }
 
