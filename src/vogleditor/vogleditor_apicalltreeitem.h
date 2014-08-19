@@ -112,7 +112,7 @@ private:
     QList<vogleditor_apiCallTreeItem*> m_childItems;
     QVariant m_columnData[VOGL_MAX_ACTC];
     vogleditor_apiCallTreeItem* m_parentItem;
-    vogleditor_apiCallItem* m_pApiCallItem; // LLL remove this
+    vogleditor_apiCallItem* m_pApiCallItem; // LLL remove this ?
     vogleditor_groupItem* m_pGroupItem;
     vogleditor_frameItem* m_pFrameItem;
     vogleditor_QApiCallTreeModel* m_pModel;
