@@ -1003,12 +1003,11 @@ bool vogl_is_draw_entrypoint(gl_entrypoint_id_t id)
         case VOGL_ENTRYPOINT_glMultiDrawElementsIndirect:
         case VOGL_ENTRYPOINT_glMultiDrawElementsIndirectAMD:
         case VOGL_ENTRYPOINT_glMultiDrawRangeElementArrayAPPLE:
-        case VOGL_ENTRYPOINT_glEnd:
             return true;
         default:
             break;
     }
-    return vogl_is_clear_entrypoint(id);
+    return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1032,14 +1031,31 @@ bool vogl_is_clear_entrypoint(gl_entrypoint_id_t id)
     return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+// vogl_is_draw_buffer_modifier_entrypoint
+//----------------------------------------------------------------------------------------------------------------------
+bool vogl_is_draw_buffer_modifier_entrypoint(gl_entrypoint_id_t id)
+{
+    VOGL_FUNC_TRACER
+
+    switch (id)
+    {
+        case VOGL_ENTRYPOINT_glEnd:
+        case VOGL_ENTRYPOINT_glBitmap:
+            return true;
+        default:
+            break;
+    }
+    return vogl_is_draw_entrypoint(id) || vogl_is_clear_entrypoint(id);
+}
+
 //------------------------------------------------------------------------------
 // vogl_is_start_nested_entrypoint
 //------------------------------------------------------------------------------
 bool vogl_is_start_nested_entrypoint(gl_entrypoint_id_t id)
 {
     switch (id) {
-      //case VOGL_ENTRYPOINT_glBegin:
-        case VOGL_ENTRYPOINT_glPushDebugGroup:
+        case VOGL_ENTRYPOINT_glBegin:
           return true;
         default:
           break;
@@ -1053,7 +1069,34 @@ bool vogl_is_start_nested_entrypoint(gl_entrypoint_id_t id)
 bool vogl_is_end_nested_entrypoint(gl_entrypoint_id_t id)
 {
     switch (id) {
-      //case VOGL_ENTRYPOINT_glEnd:
+        case VOGL_ENTRYPOINT_glEnd:
+          return true;
+        default:
+          break;
+    }
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// vogl_is_marker_push_entrypoint
+//------------------------------------------------------------------------------
+bool vogl_is_marker_push_entrypoint(gl_entrypoint_id_t id)
+{
+    switch (id) {
+        case VOGL_ENTRYPOINT_glPushDebugGroup:
+          return true;
+        default:
+          break;
+    }
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// vogl_is_marker_pop_entrypoint
+//------------------------------------------------------------------------------
+bool vogl_is_marker_pop_entrypoint(gl_entrypoint_id_t id)
+{
+    switch (id) {
         case VOGL_ENTRYPOINT_glPopDebugGroup:
           return true;
         default:

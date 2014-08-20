@@ -26,42 +26,66 @@
 #pragma once
 
 #include <QList>
+#include "vogleditor_snapshotitem.h"
+#include "vogleditor_apicallitem.h"
 
 class vogleditor_frameItem;
-class vogleditor_apiCallItem;
 
 class vogleditor_groupItem : public vogleditor_snapshotItem
 {
 public:
-   vogleditor_groupItem(vogleditor_frameItem* pFrameItem)
-   : m_pParentFrame(pFrameItem)
-   {
-   }
+    vogleditor_groupItem(vogleditor_frameItem* pFrameItem)
+    : m_pParentFrame(pFrameItem)
+    {
+    }
 
-   ~vogleditor_groupItem()
-   {
-      m_apiCallList.clear();
-   }
+    ~vogleditor_groupItem()
+    {
+        m_apiCallList.clear();
+    }
 
-   void appendCall(vogleditor_apiCallItem* pItem)
-   {
-      m_apiCallList.append(pItem);
-   }
+    void appendCall(vogleditor_apiCallItem* pItem)
+    {
+        m_apiCallList.append(pItem);
+    }
 
-   inline int callCount() const
-   {
-      return m_apiCallList.size();
-   }
+    inline int callCount() const
+    {
+        return m_apiCallList.size();
+    }
 
-   vogleditor_apiCallItem* call(int index) const
-   {
-      if (index < 0 || index > callCount())
-      {
-         return NULL;
-      }
+    vogleditor_apiCallItem* call(int index) const
+    {
+        if (index < 0 || index > callCount())
+        {
+            return NULL;
+        }
+        return m_apiCallList[index];
+    }
 
-      return m_apiCallList[index];
-   }
+    inline uint64_t firstChildIndex() const
+    {
+        if (callCount())
+        {
+            return m_apiCallList[0]->globalCallIndex();
+        }
+        return (uint64_t) 0;
+    }
+
+    inline uint64_t startTime() const
+    {
+        return m_apiCallList[0]->startTime();
+    }
+
+    inline uint64_t endTime() const
+    {
+        return m_apiCallList[callCount()-1]->endTime();
+    }
+
+    inline uint64_t duration() const
+    {
+        return endTime() - startTime();
+    }
 
 private:
    vogleditor_frameItem* m_pParentFrame;

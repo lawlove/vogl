@@ -65,6 +65,11 @@ public:
         return m_pParentFrame;
     }
 
+    inline vogleditor_groupItem* group() const
+    {
+        return m_pParentGroup;
+    }
+
     inline uint64_t globalCallIndex() const
     {
         return m_globalCallIndex;
