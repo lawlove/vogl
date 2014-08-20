@@ -27,6 +27,7 @@
 #include <QIcon>
 
 #include "vogleditor_apicalltreeitem.h"
+#include "vogleditor_groupitem.h"
 #include "vogleditor_qapicalltreemodel.h"
 
 #include "vogleditor_frameitem.h"
@@ -128,6 +129,12 @@ vogleditor_apiCallTreeItem::~vogleditor_apiCallTreeItem()
         m_pFrameItem = NULL;
     }
 
+    if (m_pGroupItem != NULL)
+    {
+        vogl_delete(m_pGroupItem);
+        m_pGroupItem = NULL;
+    }
+
     if (m_pApiCallItem != NULL)
     {
         vogl_delete(m_pApiCallItem);
@@ -179,6 +186,11 @@ vogleditor_apiCallItem* vogleditor_apiCallTreeItem::apiCallItem() const
     return m_pApiCallItem;
 }
 
+vogleditor_groupItem* vogleditor_apiCallTreeItem::groupItem() const
+{
+    return m_pGroupItem;
+}
+
 vogleditor_frameItem* vogleditor_apiCallTreeItem::frameItem() const
 {
     return m_pFrameItem;
@@ -192,6 +204,10 @@ uint64_t vogleditor_apiCallTreeItem::startTime() const
     if (m_pApiCallItem)
     {
         startTime = m_pApiCallItem->startTime();
+    }
+    else if (m_pGroupItem)
+    {
+        startTime = m_pGroupItem->startTime();
     }
     else if (m_pFrameItem)
     {
@@ -207,6 +223,10 @@ uint64_t vogleditor_apiCallTreeItem::endTime() const
     if (m_pApiCallItem)
     {
         endTime = m_pApiCallItem->endTime();
+    }
+    else if (m_pGroupItem)
+    {
+        endTime = m_pGroupItem->endTime();
     }
     else if (m_pFrameItem)
     {

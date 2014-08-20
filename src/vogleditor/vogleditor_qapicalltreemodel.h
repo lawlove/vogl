@@ -63,9 +63,9 @@ public:
         return m_rootItem;
     }
 
-    vogleditor_apiCallTreeItem* create_new_group(vogleditor_frameItem  *pFrameObj,
-                                                 vogleditor_groupItem *&pGroupObj,
-                                                 vogleditor_apiCallTreeItem *pParentNode);
+    vogleditor_apiCallTreeItem* create_group(vogleditor_frameItem  *pFrameObj,
+                                             vogleditor_groupItem *&pGroupObj,
+                                             vogleditor_apiCallTreeItem *pParentNode);
     void delete_group(vogleditor_frameItem  *pCurFrameObj,
                       vogleditor_apiCallTreeItem *&pParentNode);
     void delete_apiCall(vogleditor_frameItem  *pCurFrameObj,

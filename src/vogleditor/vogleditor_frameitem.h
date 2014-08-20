@@ -43,6 +43,7 @@ public:
     ~vogleditor_frameItem()
     {
         m_apiCallList.clear();
+        m_groupList.clear();
     }
 
     inline uint64_t frameNumber() const
@@ -87,8 +88,7 @@ public:
 
     bool getStartEndTimes(uint64_t& start, uint64_t& end) const
     {
-        int numCalls = callCount();
-        if (numCalls == 0)
+        if (callCount() == 0)
         {
             return false;
         }
@@ -100,11 +100,15 @@ public:
 
     uint64_t startTime() const
     {
+//LLL
+// return min (apiCallStartTime(0), groupStartTime(0))
         return apiCallStartTime(0);
     }
 
     uint64_t endTime() const
     {
+//LLL
+// return max (apiCallStartTime(callCount()-1), groupStartTime(callCount()-1))
         return apiCallEndTime(callCount()-1);
     }
 

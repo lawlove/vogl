@@ -79,7 +79,7 @@ public:
     vogleditor_apiCallTreeItem* child(int index) const;
 
     vogleditor_apiCallItem* apiCallItem() const;
-
+    vogleditor_groupItem* groupItem() const;
     vogleditor_frameItem* frameItem() const;
 
     uint64_t startTime() const;

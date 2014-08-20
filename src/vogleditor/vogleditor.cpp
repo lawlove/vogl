@@ -2519,10 +2519,8 @@ void VoglEditor::onApiCallSelected(const QModelIndex &index, bool bAllowStateSna
 void VoglEditor::setTimeline(vogleditor_apiCallTreeItem* pCallTreeItem)
 {
     vogleditor_frameItem* pFrameItem = pCallTreeItem->frameItem();
+    vogleditor_groupItem* pGroupItem = pCallTreeItem->groupItem();
     vogleditor_apiCallItem* pApiCallItem = pCallTreeItem->apiCallItem();
-
-//LLL - prob want to be able to set at group start at some point
-//  vogleditor_groupItem* pGroupItem = pCallTreeItem->groupItem();
 
     m_pCurrentCallTreeItem = pCallTreeItem;
 
@@ -2531,6 +2529,12 @@ void VoglEditor::setTimeline(vogleditor_apiCallTreeItem* pCallTreeItem)
     if (pApiCallItem != NULL)
     {
         m_timeline->setCurrentApiCall(pApiCallItem->globalCallIndex());
+    }
+
+    if (pGroupItem != NULL)
+    {
+        //m_timeline->setCurrentGroup(pGroupItem->firstChildIndex());
+        m_timeline->setCurrentApiCall(pGroupItem->firstChildIndex());
     }
 
     if (pFrameItem != NULL)

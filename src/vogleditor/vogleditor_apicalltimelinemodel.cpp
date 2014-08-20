@@ -27,6 +27,7 @@
 #include "vogleditor_timelineitem.h"
 #include "vogleditor_qapicalltreemodel.h"
 #include "vogleditor_apicalltreeitem.h"
+#include "vogleditor_groupitem.h"
 #include "vogleditor_frameitem.h"
 
 vogleditor_apiCallTimelineModel::vogleditor_apiCallTimelineModel(vogleditor_apiCallTreeItem* pRootApiCall) :
@@ -93,10 +94,7 @@ void vogleditor_apiCallTimelineModel::refresh()
             vogleditor_apiCallTreeItem* pFrameItem = m_pRootApiCall->child(c);
             if (pFrameItem->childCount() > 0)
             {
-              // >>LLL
                 frameStart = u64ToFloat(pFrameItem->startTime() - m_rawBaseTime);
-              // <<LLL
-              //frameStart = u64ToFloat(pFrameItem->child(0)->apiCallItem()->startTime() - m_rawBaseTime);
                 vogleditor_timelineItem* pFrameTimelineItem = new vogleditor_timelineItem(frameStart, m_rootItem);
                 pFrameTimelineItem->setFrameItem(pFrameItem->frameItem());
                 m_rootItem->appendChild(pFrameTimelineItem);
@@ -165,7 +163,13 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
     for (int c = 0; c < numChildren; c++)
     {
         vogleditor_apiCallTreeItem* pChild = pRoot->child(c);
-        if (pChild->apiCallItem() != NULL)
+
+        //LLL create a base class for all tree items w/ start/end times?
+        if (pChild->isGroup())
+        {
+            AddApiCallsToTimeline(pChild, pDestRoot);
+        }
+        else if (pChild->isApiCall())
         {
             float beginFloat = u64ToFloat(pChild->apiCallItem()->startTime() - m_rawBaseTime);
             float endFloat = u64ToFloat(pChild->apiCallItem()->endTime() - m_rawBaseTime);
