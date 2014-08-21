@@ -43,11 +43,27 @@ public:
     ~vogleditor_frameItem()
     {
         m_apiCallList.clear();
+        m_groupList.clear();
     }
 
     inline uint64_t frameNumber() const
     {
         return m_frameNumber;
+    }
+
+    void appendGroup(vogleditor_groupItem* pItem)
+    {
+        m_groupList.append(pItem);
+    }
+
+    vogleditor_apiCallItem* popApiCall()
+    {
+        return m_apiCallList.takeLast();
+    }
+
+    vogleditor_groupItem* popGroup()
+    {
+        return m_groupList.takeLast();
     }
 
     void appendCall(vogleditor_apiCallItem* pItem)
@@ -72,15 +88,43 @@ public:
 
     bool getStartEndTimes(uint64_t& start, uint64_t& end) const
     {
-        int numCalls = callCount();
-        if (numCalls == 0)
+        if (callCount() == 0)
         {
             return false;
         }
 
-        start = m_apiCallList[0]->startTime();
-        end = m_apiCallList[numCalls-1]->endTime();
+        start = startTime();
+        end = endTime();
         return true;
+    }
+
+    uint64_t startTime() const
+    {
+//LLL
+// return min (apiCallStartTime(0), groupStartTime(0))
+        return apiCallStartTime(0);
+    }
+
+    uint64_t endTime() const
+    {
+//LLL
+// return max (apiCallStartTime(callCount()-1), groupStartTime(callCount()-1))
+        return apiCallEndTime(callCount()-1);
+    }
+
+    uint64_t apiCallStartTime(uint index) const
+    {
+        return m_apiCallList[index]->startTime();
+    }
+
+    uint64_t apiCallEndTime(uint index) const
+    {
+        return m_apiCallList[index]->endTime();
+    }
+
+    uint64_t duration() const
+    {
+        return (endTime() - startTime());
     }
 
     void set_screenshot_filename(const dynamic_string& filename)
@@ -96,6 +140,7 @@ public:
 private:
     uint64_t m_frameNumber;
     QList<vogleditor_apiCallItem*> m_apiCallList;
+    QList<vogleditor_groupItem*> m_groupList;
 
     dynamic_string m_screenshot_filename;
 };
