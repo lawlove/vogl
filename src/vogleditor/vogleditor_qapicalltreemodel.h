@@ -28,6 +28,7 @@
 
 #include <QAbstractItemModel>
 #include <QLinkedList>
+#include "vogl_common.h"
 
 class QVariant;
 class vogleditor_apiCallTreeItem;
@@ -35,6 +36,8 @@ class vogl_ctypes;
 class vogl_trace_file_reader;
 class vogleditor_groupItem;
 class vogleditor_frameItem;
+class vogl_trace_packet;
+class vogleditor_apiCallItem;
 
 struct vogl_trace_gl_entrypoint_packet;
 
@@ -68,8 +71,6 @@ public:
                                              vogleditor_apiCallTreeItem *pParentNode);
     void delete_group(vogleditor_frameItem  *pCurFrameObj,
                       vogleditor_apiCallTreeItem *&pParentNode);
-    void delete_apiCall(vogleditor_frameItem  *pCurFrameObj,
-                        vogleditor_apiCallTreeItem *&pParentNode);
 
     void set_highlight_search_string(const QString searchString);
     QModelIndex find_prev_search_result(vogleditor_apiCallTreeItem* start, const QString searchText);
@@ -89,6 +90,11 @@ public:
 signals:
 
 public slots:
+
+private:
+    gl_entrypoint_id_t apiCallId(vogleditor_apiCallTreeItem *apiCall) const;
+    gl_entrypoint_id_t prevItemApiCallId() const;
+    QString buildFunctionCall(vogl_trace_packet *pTrace_packet, gl_entrypoint_id_t &id) const;
 
 private:
     vogleditor_apiCallTreeItem* m_rootItem;

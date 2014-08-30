@@ -1032,9 +1032,9 @@ bool vogl_is_clear_entrypoint(gl_entrypoint_id_t id)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-// vogl_is_draw_buffer_modifier_entrypoint
+// vogl_is_frame_buffer_write_entrypoint
 //----------------------------------------------------------------------------------------------------------------------
-bool vogl_is_draw_buffer_modifier_entrypoint(gl_entrypoint_id_t id)
+bool vogl_is_frame_buffer_write_entrypoint(gl_entrypoint_id_t id)
 {
     VOGL_FUNC_TRACER
 
@@ -1056,6 +1056,7 @@ bool vogl_is_start_nested_entrypoint(gl_entrypoint_id_t id)
 {
     switch (id) {
         case VOGL_ENTRYPOINT_glBegin:
+        //case VOGL_ENTRYPOINT_glPushMatrix:
           return true;
         default:
           break;
@@ -1070,6 +1071,7 @@ bool vogl_is_end_nested_entrypoint(gl_entrypoint_id_t id)
 {
     switch (id) {
         case VOGL_ENTRYPOINT_glEnd:
+        //case VOGL_ENTRYPOINT_glPopMatrix:
           return true;
         default:
           break;

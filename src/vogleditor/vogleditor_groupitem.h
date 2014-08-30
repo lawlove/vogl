@@ -63,13 +63,18 @@ public:
         return m_apiCallList[index];
     }
 
-    inline uint64_t firstChildIndex() const
+    inline uint64_t firstApiCallIndex() const
     {
-        if (callCount())
+        return apiCallIndex(0);
+    }
+
+    inline uint64_t apiCallIndex(int index=0) const
+    {
+        if (vogleditor_apiCallItem *apiCallItem = call(index))
         {
-            return m_apiCallList[0]->globalCallIndex();
+            return apiCallItem->globalCallIndex();
         }
-        return (uint64_t) 0;
+        return uint64_t(-1); // (-1 index won't be found)
     }
 
     inline uint64_t startTime() const

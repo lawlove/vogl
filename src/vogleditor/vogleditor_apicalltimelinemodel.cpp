@@ -164,15 +164,14 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
     {
         vogleditor_apiCallTreeItem* pChild = pRoot->child(c);
 
-        //LLL create a base class for all tree items w/ start/end times?
         if (pChild->isGroup())
         {
             AddApiCallsToTimeline(pChild, pDestRoot);
         }
         else if (pChild->isApiCall())
         {
-            float beginFloat = u64ToFloat(pChild->apiCallItem()->startTime() - m_rawBaseTime);
-            float endFloat = u64ToFloat(pChild->apiCallItem()->endTime() - m_rawBaseTime);
+            float beginFloat = u64ToFloat(pChild->startTime() - m_rawBaseTime);
+            float endFloat = u64ToFloat(pChild->endTime() - m_rawBaseTime);
 
             vogleditor_timelineItem* pNewItem = new vogleditor_timelineItem(beginFloat, endFloat, pDestRoot);
             pNewItem->setApiCallItem(pChild->apiCallItem());

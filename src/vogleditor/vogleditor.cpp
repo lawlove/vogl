@@ -2533,8 +2533,7 @@ void VoglEditor::setTimeline(vogleditor_apiCallTreeItem* pCallTreeItem)
 
     if (pGroupItem != NULL)
     {
-        //m_timeline->setCurrentGroup(pGroupItem->firstChildIndex());
-        m_timeline->setCurrentApiCall(pGroupItem->firstChildIndex());
+        m_timeline->setCurrentGroup(pGroupItem->firstApiCallIndex());
     }
 
     if (pFrameItem != NULL)
