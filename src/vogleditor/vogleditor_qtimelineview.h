@@ -74,7 +74,7 @@ public:
 
    inline void setCurrentGroup(unsigned long long groupNumber)
    {
-      m_curGroup = groupNumber;
+      setCurrentApiCall(groupNumber);
    }
 
    inline void setCurrentApiCall(unsigned long long apiCallNumber)

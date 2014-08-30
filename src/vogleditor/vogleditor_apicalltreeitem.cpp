@@ -196,7 +196,6 @@ vogleditor_frameItem* vogleditor_apiCallTreeItem::frameItem() const
     return m_pFrameItem;
 }
 
-// LLL add start/endTime, duration
 uint64_t vogleditor_apiCallTreeItem::startTime() const
 {
     uint64_t startTime = 0;
@@ -212,6 +211,10 @@ uint64_t vogleditor_apiCallTreeItem::startTime() const
     else if (m_pFrameItem)
     {
         startTime = m_pFrameItem->startTime();
+    }
+    else // root
+    {
+        startTime = child(0)->startTime();
     }
     return startTime;
 }
@@ -231,6 +234,10 @@ uint64_t vogleditor_apiCallTreeItem::endTime() const
     else if (m_pFrameItem)
     {
         endTime = m_pFrameItem->endTime();
+    }
+    else // root
+    {
+        endTime = child(childCount()-1)->endTime();
     }
     return endTime;
 }
