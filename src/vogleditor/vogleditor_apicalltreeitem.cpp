@@ -94,7 +94,7 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_groupItem* gro
 }
 
 // Constructor for apiCall nodes
-vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(QString nodeText, vogleditor_apiCallItem* apiCallItem, vogleditor_apiCallTreeItem* parent)
+vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_apiCallItem* apiCallItem, vogleditor_apiCallTreeItem* parent)
     : m_parentItem(parent),
       m_pApiCallItem(apiCallItem),
       m_pGroupItem(NULL),
@@ -102,7 +102,7 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(QString nodeText, vogledi
       m_pModel(NULL),
       m_localRowIndex(0)
 {
-    m_columnData[VOGL_ACTC_APICALL] = nodeText;
+    m_columnData[VOGL_ACTC_APICALL] = apiCallItem->apiFunctionCall();
 
     if (apiCallItem != NULL)
     {
@@ -351,7 +351,7 @@ QVariant vogleditor_apiCallTreeItem::columnData(int column, int role) const
     return QVariant();
 }
 
-void vogleditor_apiCallTreeItem::setCallTreeApiCallColumnData(QVariant name)
+void vogleditor_apiCallTreeItem::setApiCallColumnData(QVariant name)
 {
     setColumnData(name, VOGL_ACTC_APICALL);
 }
@@ -359,6 +359,11 @@ void vogleditor_apiCallTreeItem::setCallTreeApiCallColumnData(QVariant name)
 void vogleditor_apiCallTreeItem::setColumnData(QVariant data, int column)
 {
    m_columnData[column] = data;
+}
+
+QString vogleditor_apiCallTreeItem::markerApiCallDebugMessage()
+{
+    return isApiCall() ? apiCallItem()->markerApiCallDebugMessage() : QString();
 }
 
 int vogleditor_apiCallTreeItem::row() const

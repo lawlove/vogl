@@ -105,6 +105,60 @@ public:
         return m_backtrace_hash_index;
     }
 
+    QString apiFunctionCall()
+    {
+        const gl_entrypoint_desc_t &entrypoint_desc = g_vogl_entrypoint_descs[m_pTracePacket->get_entrypoint_id()];
+
+        QString funcCall = entrypoint_desc.m_pName;
+
+        // format parameters
+        funcCall.append("( ");
+        dynamic_string paramStr;
+        for (uint param_index = 0; param_index < m_pTracePacket->total_params(); param_index++)
+        {
+            if (param_index != 0)
+                funcCall.append(", ");
+
+            paramStr.clear();
+            m_pTracePacket->pretty_print_param(paramStr, param_index, false);
+
+            funcCall.append(paramStr.c_str());
+        }
+        funcCall.append(" )");
+
+        if (m_pTracePacket->has_return_value())
+        {
+            funcCall.append(" = ");
+            paramStr.clear();
+            m_pTracePacket->pretty_print_return_value(paramStr, false);
+            funcCall.append(paramStr.c_str());
+        }
+        return funcCall;
+    }
+
+    QString markerApiCallDebugMessage()
+    {
+        QString apiCall = apiFunctionCall();
+
+        switch (m_pTracePacket->get_entrypoint_id())
+        {
+            case VOGL_ENTRYPOINT_glPushDebugGroup:
+            {
+                QString sec, name;
+                int start = 1;
+                while (!(sec=apiCall.section('\'', start, start)).isEmpty())
+                {
+                    name.append(sec);
+                    start +=2;
+                }
+                return name;
+            }
+            default:
+                break;
+        }
+        return QString();
+    }
+
 private:
     vogleditor_frameItem* m_pParentFrame;
     vogleditor_groupItem* m_pParentGroup;
