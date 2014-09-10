@@ -92,9 +92,8 @@ signals:
 public slots:
 
 private:
-    gl_entrypoint_id_t apiCallId(vogleditor_apiCallTreeItem *apiCall) const;
-    gl_entrypoint_id_t prevItemApiCallId() const;
-    QString buildFunctionCall(vogl_trace_packet *pTrace_packet, gl_entrypoint_id_t &id) const;
+    gl_entrypoint_id_t itemApiCallId(vogleditor_apiCallTreeItem *apiCall) const;
+    gl_entrypoint_id_t lastItemApiCallId() const;
 
 private:
     vogleditor_apiCallTreeItem* m_rootItem;

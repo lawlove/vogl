@@ -65,7 +65,7 @@ public:
     vogleditor_apiCallTreeItem(vogleditor_groupItem* groupItem, vogleditor_apiCallTreeItem* parent);
 
     // Constructor for apiCall nodes
-    vogleditor_apiCallTreeItem(QString nodeText, vogleditor_apiCallItem* apiCallItem, vogleditor_apiCallTreeItem* parent);
+    vogleditor_apiCallTreeItem(vogleditor_apiCallItem* apiCallItem, vogleditor_apiCallTreeItem* parent);
 
     ~vogleditor_apiCallTreeItem();
 
@@ -96,14 +96,15 @@ public:
 
     QVariant columnData(int column, int role) const;
 
-   void setCallTreeApiCallColumnData(QVariant name);
+    void setApiCallColumnData(QVariant name);
+    QString markerApiCallDebugMessage();
 
     int row() const;
 
-   bool isApiCall() const { return m_pApiCallItem != NULL; }
-   bool isGroup()   const { return m_pGroupItem   != NULL; }
-   bool isFrame()   const { return m_pFrameItem   != NULL; }
-   bool isRoot()    const { return !(isApiCall() | isGroup() | isFrame()); }
+    bool isApiCall() const { return m_pApiCallItem != NULL; }
+    bool isGroup()   const { return m_pGroupItem   != NULL; }
+    bool isFrame()   const { return m_pFrameItem   != NULL; }
+    bool isRoot()    const { return !(isApiCall() | isGroup() | isFrame()); }
 
 private:
    void setColumnData(QVariant data, int column);
@@ -112,7 +113,7 @@ private:
     QList<vogleditor_apiCallTreeItem*> m_childItems;
     QVariant m_columnData[VOGL_MAX_ACTC];
     vogleditor_apiCallTreeItem* m_parentItem;
-    vogleditor_apiCallItem* m_pApiCallItem; // LLL remove this ?
+    vogleditor_apiCallItem* m_pApiCallItem;
     vogleditor_groupItem* m_pGroupItem;
     vogleditor_frameItem* m_pFrameItem;
     vogleditor_QApiCallTreeModel* m_pModel;
