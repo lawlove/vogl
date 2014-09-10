@@ -92,6 +92,13 @@ signals:
 public slots:
 
 private:
+    void preProcessApiCall(gl_entrypoint_id_t  &id, vogleditor_frameItem *&frame,
+                                                    vogleditor_groupItem *&group,
+                                                    vogleditor_apiCallTreeItem *&parent);
+    void postProcessApiCall(gl_entrypoint_id_t &id, vogleditor_frameItem *&frame,
+                                                    vogleditor_groupItem *&group,  
+                                                    vogleditor_apiCallTreeItem *&parent,
+                                                    vogleditor_apiCallTreeItem *&item);
     gl_entrypoint_id_t itemApiCallId(vogleditor_apiCallTreeItem *apiCall) const;
     gl_entrypoint_id_t lastItemApiCallId() const;
 
