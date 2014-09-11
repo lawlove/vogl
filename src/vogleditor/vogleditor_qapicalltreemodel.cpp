@@ -391,8 +391,9 @@ void vogleditor_QApiCallTreeModel::preProcessApiCall(gl_entrypoint_id_t &entrypo
         // apicall is not a start_nested entrypoint (above if-block
         // would have pre-processed it). Hence we can now close the
         // Render group and start a new State/Render group under the
-        // Render group's parent
-        if (vogl_is_frame_buffer_write_entrypoint(lastItemApiCallId()))
+        // Render group's parent (unless it's also a nest - allow unstack first)
+        if ((vogl_is_frame_buffer_write_entrypoint(lastItemApiCallId())) &&
+           !(vogl_is_start_nested_entrypoint(itemApiCallId(pCurParent))))
         {
             pCurParent = pCurParent->parent();
             pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
