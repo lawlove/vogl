@@ -29,6 +29,7 @@
 #include <QList>
 #include <QVariant>
 #include "vogl_core.h"
+#include "vogleditor_settings.h"
 
 class vogleditor_frameItem;
 class vogleditor_groupItem;
@@ -106,7 +107,7 @@ public:
     int row() const;
 
     bool isApiCall() const { return m_pApiCallItem != NULL; }
-    bool isGroup()   const { return m_pGroupItem   != NULL; }
+    bool isGroup()   const { return (g_settings.groups_state_render() && (m_pGroupItem != NULL)); }
     bool isFrame()   const { return m_pFrameItem   != NULL; }
     bool isRoot()    const { return !(isApiCall() | isGroup() | isFrame()); }
 

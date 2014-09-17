@@ -38,6 +38,7 @@
 #include "vogleditor_groupitem.h"
 #include "vogleditor_apicallitem.h"
 #include "vogleditor_output.h"
+#include "vogleditor_settings.h"
 
 vogleditor_QApiCallTreeModel::vogleditor_QApiCallTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -221,14 +222,14 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 // treenodes, i.e., state/render groups or marker_push types 
                 // (marker_push types [e.g., glPushDebugGroups] are post-
                 // processed so skip them here)
-                if ( ! vogl_is_marker_push_entrypoint(entrypoint_id))
+                if ( ! processMarkerPushEntrypoint(entrypoint_id))
                 {
                     // Start a new state/render group container
                     pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
                 }
             } // pCurParent->isFrame()
 
-            else if (vogl_is_marker_push_entrypoint(entrypoint_id))
+            else if (processMarkerPushEntrypoint(entrypoint_id))
             {
                 if (pCurParent->isGroup())
                 {
@@ -236,7 +237,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 }
             } // vogl_is_marker_push_entrypoint(entrypoint_id)
 
-            else if (vogl_is_start_nested_entrypoint(entrypoint_id))
+            else if (processStartNestedEntrypoint(entrypoint_id))
             {
                 if (pCurParent->isGroup()) // state/render group?
                 {
@@ -249,7 +250,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                         // If we're in a series of start/end nests, following
                         // will be skipped to stay in current group; Otherwise
                         // current group ends and a new group is started
-                        if (!vogl_is_end_nested_entrypoint(lastItemApiCallId()))
+                        if (!processEndNestedEntrypoint(lastItemApiCallId()))
                         {
                             pCurParent = pCurParent->parent();
                             pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
@@ -264,7 +265,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             // previous call was a frame_buffer_write entrypoint (and by
             // definition also an end_nested). If so then we've broken any
             // series (one or more) of sequential start/end nests and now close.
-            else if (vogl_is_frame_buffer_write_entrypoint(lastItemApiCallId()))
+            else if (processFrameBufferWriteEntrypoint(lastItemApiCallId()))
             {
                 if (pCurParent->isGroup())
                 {
@@ -280,7 +281,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
 
             // Remove following if-statement to allow marker_pop_entrypoint
             // apicalls (e.g., glPopDebugGroup) to be added to the apicall tree.
-            if (!vogl_is_marker_pop_entrypoint(entrypoint_id))
+            if (!processMarkerPopEntrypoint(entrypoint_id))
             {
                 // make item for the api call
                 pCallItem = vogl_new(vogleditor_apiCallItem, pCurFrame, pTrace_packet, *pGL_packet);
@@ -314,23 +315,23 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 // reset the CurFrame so that a new frame node will be created on the next api call
                 pCurFrame = NULL;
             }
-            else if (vogl_is_start_nested_entrypoint(entrypoint_id))
+            else if (processStartNestedEntrypoint(entrypoint_id))
             {
                 // start a new nested layer with this item as parent
                 pCurParent = item;
             }
-            else if (vogl_is_end_nested_entrypoint(entrypoint_id))
+            else if (processEndNestedEntrypoint(entrypoint_id))
             {
                 if (!pCurParent->isFrame())
                     pCurParent = pCurParent->parent();
             }
-            else if (vogl_is_marker_push_entrypoint(entrypoint_id))
+            else if (processMarkerPushEntrypoint(entrypoint_id))
             {
                 // Append a new state/render group child to marker_push
                 // entrypoint item and make it the parent
                 pCurParent = item;
             }
-            else if (vogl_is_marker_pop_entrypoint(entrypoint_id))
+            else if (processMarkerPopEntrypoint(entrypoint_id))
             {
                 // move parent up one level (but not past Frame parent)
                 // [e.g., if there was no corresponding marker_push]
@@ -356,7 +357,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             } // vogl_is_marker_pop_entrypoint(entrypoint_id)
 
             // end group on draw and start new group
-            if (vogl_is_frame_buffer_write_entrypoint(entrypoint_id))
+            if (processFrameBufferWriteEntrypoint(entrypoint_id))
             {
                 // set group name to "Render"
                 if (pCurParent->isGroup())
@@ -381,6 +382,47 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
     }
 
     return found_eof_packet;
+}
+
+bool vogleditor_QApiCallTreeModel::processMarkerPushEntrypoint(gl_entrypoint_id_t id)
+{
+    if (!g_settings.groups_push_pop_markers())
+    {
+        return false;
+    }
+    return vogl_is_marker_push_entrypoint(id);
+}
+bool vogleditor_QApiCallTreeModel::processMarkerPopEntrypoint(gl_entrypoint_id_t id)
+{
+    if (!g_settings.groups_push_pop_markers())
+    {
+        return false;
+    }
+    return vogl_is_marker_pop_entrypoint(id);
+}
+bool vogleditor_QApiCallTreeModel::processStartNestedEntrypoint(gl_entrypoint_id_t id)
+{
+    if (!g_settings.groups_nested_calls())
+    {
+        return false;
+    }
+    return vogl_is_start_nested_entrypoint(id);
+}
+bool vogleditor_QApiCallTreeModel::processEndNestedEntrypoint(gl_entrypoint_id_t id)
+{
+    if (!g_settings.groups_nested_calls())
+    {
+        return false;
+    }
+    return vogl_is_end_nested_entrypoint(id);
+}
+bool vogleditor_QApiCallTreeModel::processFrameBufferWriteEntrypoint(gl_entrypoint_id_t id)
+{
+    if (!g_settings.groups_state_render())
+    {
+        return false;
+    }
+    return vogl_is_frame_buffer_write_entrypoint(id);
 }
 
 gl_entrypoint_id_t vogleditor_QApiCallTreeModel::itemApiCallId(vogleditor_apiCallTreeItem *apiCallTreeItem) const
@@ -448,6 +490,10 @@ vogleditor_apiCallTreeItem *vogleditor_QApiCallTreeModel::create_group(vogledito
 //      - add to parent tree item
 //      - add to this object's apiCallItem list (m_itemList)
 
+    if (!g_settings.groups_state_render())
+    {
+        return pParentNode;
+    }
     // Make a new group item
     pCurGroupObj = vogl_new(vogleditor_groupItem, pCurFrameObj);
     pCurFrameObj->appendGroup(pCurGroupObj); // (move this to constructor?)

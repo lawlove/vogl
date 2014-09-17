@@ -95,6 +95,12 @@ private:
     gl_entrypoint_id_t itemApiCallId(vogleditor_apiCallTreeItem *apiCall) const;
     gl_entrypoint_id_t lastItemApiCallId() const;
 
+    bool processMarkerPushEntrypoint       (gl_entrypoint_id_t id);
+    bool processMarkerPopEntrypoint        (gl_entrypoint_id_t id);
+    bool processStartNestedEntrypoint      (gl_entrypoint_id_t id);
+    bool processEndNestedEntrypoint        (gl_entrypoint_id_t id);
+    bool processFrameBufferWriteEntrypoint (gl_entrypoint_id_t id);
+
 private:
     vogleditor_apiCallTreeItem* m_rootItem;
     vogl_ctypes* m_pTrace_ctypes;
