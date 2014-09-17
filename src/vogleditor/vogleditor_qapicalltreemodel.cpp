@@ -219,8 +219,8 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             {
                 // Frame treenode children should only consist of container
                 // treenodes, i.e., state/render groups or marker_push types 
-                // (marker_push type [e.g. glPushDebugGroups] are post-processed
-                // further down)
+                // (marker_push types [e.g., glPushDebugGroups] are post-
+                // processed so skip them here)
                 if ( ! vogl_is_marker_push_entrypoint(entrypoint_id))
                 {
                     // Start a new state/render group container
@@ -246,40 +246,30 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                         //       to be confused with a marker push type apicall
                         //       that has been named "Render"
                         //
-                        // If we're in a series of start/end nests, stay in
-                        // current group; if not (following if-block), start a
-                        // new group
+                        // If we're in a series of start/end nests, following
+                        // will be skipped to stay in current group; Otherwise
+                        // current group ends and a new group is started
                         if (!vogl_is_end_nested_entrypoint(lastItemApiCallId()))
                         {
-                            // close this group by setting parent as curParent.
-                            // Add new group to parent and make group curParent.
                             pCurParent = pCurParent->parent();
                             pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
                         }
                     }
                 }
             }
-            // if we get here, entrypoint_id is not a start_nested_entrypoint
-            // so check if previous call was an end_nested entrypoint. If so
-            // then we've broken a series (of 1 or more) sequentail start/end
-            // nests and can now close 
-            else if (vogl_is_end_nested_entrypoint(lastItemApiCallId())
-                 ||  vogl_is_frame_buffer_write_entrypoint(lastItemApiCallId()))
+            // For Render groups that have nested calls in which the end_nested
+            // entrypoint is also a frame_buffer_write entypoint (e.g.,
+            // glBegin/End): If we get here, we know entrypoint_id is not a
+            // start_nested entrypoint (processed in above block) so check if
+            // previous call was a frame_buffer_write entrypoint (and by
+            // definition also an end_nested). If so then we've broken any
+            // series (one or more) of sequential start/end nests and now close.
+            else if (vogl_is_frame_buffer_write_entrypoint(lastItemApiCallId()))
             {
-                // TODO: define const strings for "State changes" and "Render"
-                if (pCurParent->isGroup() &&
-                   (pCurParent->columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString() != "State changes")
+                if (pCurParent->isGroup())
                 {
                     pCurParent = pCurParent->parent();
                     pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
-                }
-                //if ((!pCurParent->isGroup()) &&
-                //    (!vogl_is_marker_push_entrypoint(itemApiCallId(pCurParent))))
-                // or maybe just: if (pCurParent->isFrame())
-                if (pCurParent->isFrame())
-                {
-                    pCurParent = pCurParent->parent();
-                //  pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
                 }
             }
 
@@ -288,10 +278,9 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
             vogleditor_apiCallItem *pCallItem = NULL;
             vogleditor_apiCallTreeItem  *item = NULL;
 
-            // If following check is removed to allow glPopDebugGroup apicalls
-            // to be added to the apicall tree, add commented check in above
-            // pre-process section for vogl_is_marker_pop_entrypoint
-            if (entrypoint_id != VOGL_ENTRYPOINT_glPopDebugGroup) // skip these
+            // Remove following if-statement to allow marker_pop_entrypoint
+            // apicalls (e.g., glPopDebugGroup) to be added to the apicall tree.
+            if (!vogl_is_marker_pop_entrypoint(entrypoint_id))
             {
                 // make item for the api call
                 pCallItem = vogl_new(vogleditor_apiCallItem, pCurFrame, pTrace_packet, *pGL_packet);
@@ -374,10 +363,10 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader* pTrace_reader)
                 {
                     // Do check in case of serial end_nested calls that are also
                     // frame_buffer_writes and only set once
-                    if ((pCurParent->columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString() != "Render")
+                    if (pCurParent->apiCallColumnData() != cTREEITEM_RENDER)
                     {
                         // Set group node column data
-                        pCurParent->setApiCallColumnData("Render");
+                        pCurParent->setApiCallColumnData(cTREEITEM_RENDER);
                     }
                 }
             } // vogl_is_frame_buffer_write_entrypoint(entrypoint_id)

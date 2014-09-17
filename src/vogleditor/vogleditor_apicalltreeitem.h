@@ -52,6 +52,9 @@ enum VOGL_API_CALL_TREE_COLUMN
     VOGL_MAX_ACTC
 };
 
+const QString cTREEITEM_STATECHANGES("State changes");
+const QString cTREEITEM_RENDER("Render");
+
 class vogleditor_apiCallTreeItem
 {
 public:
@@ -97,6 +100,7 @@ public:
     QVariant columnData(int column, int role) const;
 
     void setApiCallColumnData(QVariant name);
+    QString apiCallColumnData() const;
     QString markerApiCallDebugMessage();
 
     int row() const;

@@ -86,7 +86,7 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_groupItem* gro
    m_pModel(NULL),
    m_localRowIndex(0)
 {
-   m_columnData[VOGL_ACTC_APICALL] = "State changes";
+   m_columnData[VOGL_ACTC_APICALL] = cTREEITEM_STATECHANGES;
    if (m_parentItem != NULL)
    {
       m_pModel = m_parentItem->m_pModel;
@@ -360,6 +360,12 @@ void vogleditor_apiCallTreeItem::setColumnData(QVariant data, int column)
 {
    m_columnData[column] = data;
 }
+
+QString vogleditor_apiCallTreeItem::apiCallColumnData() const
+{
+    return (columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
+}
+
 
 QString vogleditor_apiCallTreeItem::markerApiCallDebugMessage()
 {
