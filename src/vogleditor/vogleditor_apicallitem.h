@@ -36,7 +36,7 @@ class vogl_trace_packet;
 class vogleditor_apiCallItem : public vogleditor_snapshotItem
 {
 public:
-    vogleditor_apiCallItem(vogleditor_frameItem* pFrame, vogl_trace_packet* pTracePacket, const vogl_trace_gl_entrypoint_packet& glPacket)
+    vogleditor_apiCallItem(vogleditor_frameItem *pFrame, vogl_trace_packet *pTracePacket, const vogl_trace_gl_entrypoint_packet &glPacket)
         : m_pParentFrame(pFrame),
           m_glPacket(glPacket),
           m_pTracePacket(pTracePacket),
@@ -60,12 +60,12 @@ public:
         }
     }
 
-    inline vogleditor_frameItem* frame() const
+    inline vogleditor_frameItem *frame() const
     {
         return m_pParentFrame;
     }
 
-    inline vogleditor_groupItem* group() const
+    inline vogleditor_groupItem *group() const
     {
         return m_pParentGroup;
     }
@@ -90,12 +90,12 @@ public:
         return endTime() - startTime();
     }
 
-    const vogl_trace_gl_entrypoint_packet* getGLPacket() const
+    const vogl_trace_gl_entrypoint_packet *getGLPacket() const
     {
         return &m_glPacket;
     }
 
-    vogl_trace_packet* getTracePacket()
+    vogl_trace_packet *getTracePacket()
     {
         return m_pTracePacket;
     }
@@ -105,6 +105,7 @@ public:
         return m_backtrace_hash_index;
     }
 
+    // Returns the api function call and its args as a string
     QString apiFunctionCall()
     {
         const gl_entrypoint_desc_t &entrypoint_desc = g_vogl_entrypoint_descs[m_pTracePacket->get_entrypoint_id()];
@@ -136,34 +137,29 @@ public:
         return funcCall;
     }
 
-    QString markerApiCallDebugMessage()
+    // Returns the string argument of an apicall in apiFunctionCall() output format
+    //
+    // TODO: (as needed) Add logic to return which string (argument count) from
+    //                   a multi-string argument list (or all as a QStringList)
+    QString stringArg()
     {
         QString apiCall = apiFunctionCall();
 
-        switch (m_pTracePacket->get_entrypoint_id())
+        QString sec, name;
+        int start = 1;
+        while (!(sec = apiCall.section('\'', start, start)).isEmpty())
         {
-            case VOGL_ENTRYPOINT_glPushDebugGroup:
-            {
-                QString sec, name;
-                int start = 1;
-                while (!(sec=apiCall.section('\'', start, start)).isEmpty())
-                {
-                    name.append(sec);
-                    start +=2;
-                }
-                return name;
-            }
-            default:
-                break;
+            name.append(sec);
+            start += 2;
         }
-        return QString();
+        return name;
     }
 
 private:
-    vogleditor_frameItem* m_pParentFrame;
-    vogleditor_groupItem* m_pParentGroup;
+    vogleditor_frameItem *m_pParentFrame;
+    vogleditor_groupItem *m_pParentGroup;
     const vogl_trace_gl_entrypoint_packet m_glPacket;
-    vogl_trace_packet* m_pTracePacket;
+    vogl_trace_packet *m_pTracePacket;
 
     uint64_t m_globalCallIndex;
     uint64_t m_begin_rdtsc;

@@ -51,22 +51,22 @@ public:
         return m_frameNumber;
     }
 
-    void appendGroup(vogleditor_groupItem* pItem)
+    void appendGroup(vogleditor_groupItem *pItem)
     {
         m_groupList.append(pItem);
     }
 
-    vogleditor_apiCallItem* popApiCall()
+    vogleditor_apiCallItem *popApiCall()
     {
         return m_apiCallList.takeLast();
     }
 
-    vogleditor_groupItem* popGroup()
+    vogleditor_groupItem *popGroup()
     {
         return m_groupList.takeLast();
     }
 
-    void appendCall(vogleditor_apiCallItem* pItem)
+    void appendCall(vogleditor_apiCallItem *pItem)
     {
         m_apiCallList.append(pItem);
     }
@@ -76,7 +76,7 @@ public:
         return m_apiCallList.size();
     }
 
-    vogleditor_apiCallItem* call(int index) const
+    vogleditor_apiCallItem *call(int index) const
     {
         if (index < 0 || index > callCount())
         {
@@ -86,7 +86,7 @@ public:
         return m_apiCallList[index];
     }
 
-    bool getStartEndTimes(uint64_t& start, uint64_t& end) const
+    bool getStartEndTimes(uint64_t &start, uint64_t &end) const
     {
         if (callCount() == 0)
         {
@@ -100,16 +100,12 @@ public:
 
     uint64_t startTime() const
     {
-//LLL
-// return min (apiCallStartTime(0), groupStartTime(0))
         return apiCallStartTime(0);
     }
 
     uint64_t endTime() const
     {
-//LLL
-// return max (apiCallStartTime(callCount()-1), groupStartTime(callCount()-1))
-        return apiCallEndTime(callCount()-1);
+        return apiCallEndTime(callCount() - 1);
     }
 
     uint64_t apiCallStartTime(uint index) const
@@ -127,20 +123,20 @@ public:
         return (endTime() - startTime());
     }
 
-    void set_screenshot_filename(const dynamic_string& filename)
+    void set_screenshot_filename(const dynamic_string &filename)
     {
         m_screenshot_filename = filename;
     }
 
-    const dynamic_string& get_screenshot_filename() const
+    const dynamic_string &get_screenshot_filename() const
     {
         return m_screenshot_filename;
     }
 
 private:
     uint64_t m_frameNumber;
-    QList<vogleditor_apiCallItem*> m_apiCallList;
-    QList<vogleditor_groupItem*> m_groupList;
+    QList<vogleditor_apiCallItem *> m_apiCallList;
+    QList<vogleditor_groupItem *> m_groupList;
 
     dynamic_string m_screenshot_filename;
 };
