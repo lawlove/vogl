@@ -34,8 +34,8 @@ class vogleditor_frameItem;
 class vogleditor_groupItem : public vogleditor_snapshotItem
 {
 public:
-    vogleditor_groupItem(vogleditor_frameItem* pFrameItem)
-    : m_pParentFrame(pFrameItem)
+    vogleditor_groupItem(vogleditor_frameItem *pFrameItem)
+        : m_pParentFrame(pFrameItem)
     {
     }
 
@@ -44,7 +44,7 @@ public:
         m_apiCallList.clear();
     }
 
-    void appendCall(vogleditor_apiCallItem* pItem)
+    void appendCall(vogleditor_apiCallItem *pItem)
     {
         m_apiCallList.append(pItem);
     }
@@ -54,7 +54,7 @@ public:
         return m_apiCallList.size();
     }
 
-    vogleditor_apiCallItem* call(int index) const
+    vogleditor_apiCallItem *call(int index) const
     {
         if (index < 0 || index > callCount())
         {
@@ -68,7 +68,7 @@ public:
         return apiCallIndex(0);
     }
 
-    inline uint64_t apiCallIndex(int index=0) const
+    inline uint64_t apiCallIndex(int index = 0) const
     {
         if (vogleditor_apiCallItem *apiCallItem = call(index))
         {
@@ -84,7 +84,7 @@ public:
 
     inline uint64_t endTime() const
     {
-        return m_apiCallList[callCount()-1]->endTime();
+        return m_apiCallList[callCount() - 1]->endTime();
     }
 
     inline uint64_t duration() const
@@ -93,6 +93,6 @@ public:
     }
 
 private:
-   vogleditor_frameItem* m_pParentFrame;
-   QList<vogleditor_apiCallItem*> m_apiCallList;
+    vogleditor_frameItem *m_pParentFrame;
+    QList<vogleditor_apiCallItem *> m_apiCallList;
 };
