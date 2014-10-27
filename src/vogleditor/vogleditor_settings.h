@@ -17,8 +17,20 @@ struct vogleditor_setting_struct
     unsigned int trim_large_trace_prompt_size;
 
     bool groups_state_render;
-    bool groups_push_pop_markers;
+    bool *groups_push_pop_markers;
     bool groups_nested_calls;
+
+    
+    vogleditor_setting_struct()
+    {
+        vogl_new_array(bool, vogleditor_QSettingsDialog().groupsDebugMarkersListSize());
+        //vogl_new_array(bool, sizeof);
+    }
+   ~vogleditor_setting_struct()
+    {
+        vogl_delete_array (groups_push_pop_markers);
+        //vogl_delete_array (groups_nested_calls);
+    }
 };
 
 class vogleditor_settings
@@ -83,7 +95,7 @@ public:
     }
     bool groups_push_pop_markers()
     {
-        return m_settings.groups_push_pop_markers;
+        return m_settings.groups_push_pop_markers[0];
     }
     bool groups_nested_calls()
     {
@@ -95,7 +107,7 @@ public:
     }
     void set_groups_push_pop_markers(bool groups_push_pop_markers)
     {
-        m_settings.groups_push_pop_markers = groups_push_pop_markers;
+        m_settings.groups_push_pop_markers[0] = groups_push_pop_markers;
     }
     void set_groups_nested_calls(bool groups_nested_calls)
     {

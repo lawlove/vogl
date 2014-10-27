@@ -858,6 +858,9 @@ void VoglEditor::on_actionEdit_triggered()
     if (code == QDialog::Accepted)
     {
         dialog.save(g_SETTINGS_FILE);
+        // if groupslist changed update tree display
+        // if m_groups != dialog.groups()) {}
+        resetApiCallTreeModel();
     }
 }
 
@@ -1755,6 +1758,16 @@ bool VoglEditor::open_trace_file(dynamic_string filename)
     vogleditor_output_message("...success!");
 
     this->setCursor(origCursor);
+    return true;
+}
+
+bool VoglEditor::resetApiCallTreeModel()
+{
+    dynamic_string str(m_openFilename.toLocal8Bit().data());
+
+    on_action_Close_triggered();
+    pre_open_trace_file(str);
+
     return true;
 }
 
