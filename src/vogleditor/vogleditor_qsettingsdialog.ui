@@ -29,35 +29,35 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tabGroups">
       <attribute name="title">
        <string>Groups</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_tabGroups">
        <item>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="checkboxStateRender">
          <property name="text">
           <string>State/Render groups</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="groupboxDebugMarker">
          <property name="title">
           <string>Debug marker groups</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4"/>
+         <layout class="QVBoxLayout" name="vLayout_groupboxDebugMarker"/>
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="groupboxNestOptions">
          <property name="title">
           <string>Nest options</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="vLayout_groupboxNestOptions">
           <item>
            <widget class="QScrollArea" name="scrollArea">
             <property name="widgetResizable">
@@ -72,7 +72,7 @@
                <height>153</height>
               </rect>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_6"/>
+             <layout class="QVBoxLayout" name="verticalLayout_groupboxNestOptionsScrollarea"/>
             </widget>
            </widget>
           </item>

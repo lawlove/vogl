@@ -29,31 +29,17 @@ private slots:
     void checkboxCB(int);
 
 private:
-    //void clearLayout(QLayout*);
+    void clearLayout(QLayout*);
 
 private:
     Ui::vogleditor_QSettingsDialog *ui;
 
-    //QVBoxLayout *m_vlayoutTotal;
-
-    QCheckBox   *m_checkboxStateRender; 
-
-    // Debug marker groups groupbox
-    //QVBoxLayout *m_vlayoutGroupBoxMarkers;
-    //QGroupBox   *m_groupboxDebugMarkers;
-    QCheckBox  **m_checkboxDebugMarker;
-
-    // NestOptions options groupbox
-    //QScrollArea *m_scrollareaGroupBoxNestOptions;
-    //QVBoxLayout *m_vlayoutGroupBoxNestOptions;
-    //QGroupBox   *m_groupboxNestOptions;
-    //QVBoxLayout *m_vlayoutNestOptions;
-    //QWidget     *m_widgetNestOptions;
-    QCheckBox  **m_checkboxNestOptions;
+    QCheckBox  *m_pCheckboxStateRender; 
+    QCheckBox **m_pCheckboxDebugMarker;
+    QCheckBox **m_pCheckboxNestOptions;
 
     int m_debugMarkerListSize;
     int m_nestOptionsListSize;
-
 };
 
 #endif // VOGLEDITOR_QSETTINGSDIALOG_H

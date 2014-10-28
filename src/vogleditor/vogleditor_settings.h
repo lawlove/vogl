@@ -3,8 +3,7 @@
 
 #include "vogl_dynamic_string.h"
 #include "vogl_json.h"
-//#include "vogleditor_qsettingsdialog.h"
-#include <QString>
+#include <QStringList>
 
 class vogleditor_settings;
 extern vogleditor_settings g_settings;
