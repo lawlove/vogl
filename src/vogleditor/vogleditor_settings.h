@@ -3,6 +3,7 @@
 
 #include "vogl_dynamic_string.h"
 #include "vogl_json.h"
+//#include "vogleditor_qsettingsdialog.h"
 #include <QString>
 
 class vogleditor_settings;
@@ -23,12 +24,13 @@ struct vogleditor_setting_struct
     
     vogleditor_setting_struct()
     {
-        vogl_new_array(bool, vogleditor_QSettingsDialog().groupsDebugMarkersListSize());
-        //vogl_new_array(bool, sizeof);
+        groups_push_pop_markers = new bool [2];
+        //groups_push_pop_markers = vogl_new_array(bool, vogleditor_QSettingsDialog().groupsDebugMarkerListSize());
+        //groups_nested_calls = vogl_new_array(bool, sizeof);
     }
    ~vogleditor_setting_struct()
     {
-        vogl_delete_array (groups_push_pop_markers);
+        //vogl_delete_array (groups_push_pop_markers);
         //vogl_delete_array (groups_nested_calls);
     }
 };
