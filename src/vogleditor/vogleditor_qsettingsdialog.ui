@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -72,7 +72,7 @@
                <height>153</height>
               </rect>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_groupboxNestOptionsScrollarea"/>
+             <layout class="QVBoxLayout" name="vLayout_groupboxNestOptionsScrollarea"/>
             </widget>
            </widget>
           </item>

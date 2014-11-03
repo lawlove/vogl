@@ -860,7 +860,8 @@ void VoglEditor::on_actionEdit_triggered()
         dialog.save(g_SETTINGS_FILE);
         // if groupslist changed update tree display
         // if m_groups != dialog.groups()) {}
-        resetApiCallTreeModel();
+        if (dialog.groupOptionsChanged())
+            resetApiCallTreeModel();
     }
 }
 

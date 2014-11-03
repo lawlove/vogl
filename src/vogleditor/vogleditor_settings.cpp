@@ -1,3 +1,4 @@
+#include <QStringList>
 #include "vogleditor_settings.h"
 #include "vogl_common.h"
 #include "vogl_file_utils.h"
@@ -18,9 +19,59 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.window_size_width = 1024;
     m_defaults.window_size_height = 768;
 
-    m_defaults.groups_state_render = false;
-    m_defaults.groups_push_pop_markers[0] = true;
-    m_defaults.groups_nested_calls = true;
+#ifdef LLL
+/*  m_defaults.groups_state_render = false;
+    m_defaults.groups_push_pop_markers = true;
+    m_defaults.groups_nested_calls = true; */
+#endif // LLL
+
+    m_defaults.debug_marker_list
+        << "glPushDebugGroup/glPopDebugGroup"
+        << "glPushGroupMarkerEXT/glPopGroupMarkerEXT";
+
+    m_defaults.nest_options_list
+        << "glBegin/glEnd"
+        << "glNewList/glEndList"
+        << "glPushName/glPopName"
+        << "glPushMatrix/glPopMatrix"
+        << "glPushAttrib/glPopAttrib"
+        << "glPushClientAttrib/glPopClientAttrib";
+
+#ifdef LLL
+/*  m_defaults.group_list << "State/Render groups" << m_defaults.debug_marker_list << m_defaults.nest_options_list;
+
+    int cnt = m_defaults.group_list.count();
+    for (int i=0; i< cnt; i++)
+    {
+        m_defaults.group_settings << false;
+        m_defaults.group_enabled << true;
+    }
+    m_defaults.group_settings[1] = true; // glPush/PopDebugGroup
+    m_defaults.group_settings[3] = true; // glBegin/End
+    m_defaults.group_enabled [3] = true; // glBegin/End */
+#endif // LLL
+
+    // State/Render
+    m_defaults.state_render_name = "State/Render groups";
+    m_defaults.state_render_stat = false;
+    m_defaults.state_render_used = true;
+
+    // Debug marker
+    for (int i=0, cnt=m_defaults.debug_marker_list.count(); i< cnt; i++)
+    {
+        m_defaults.debug_marker_stat << true;
+        m_defaults.debug_marker_used << true;
+    }
+    m_defaults.debug_marker_stat[1] = false; // glPush/PopGroupMarkerEXT
+    m_defaults.debug_marker_used[1] = false;
+
+    // Nest options
+    for (int i=0, cnt=m_defaults.nest_options_list.count(); i< cnt; i++)
+    {
+        m_defaults.nest_options_stat << false;
+        m_defaults.nest_options_used << true;
+    }
+    m_defaults.nest_options_stat[0] = true; // glBegin/End
 
     m_settings = m_defaults;
 }
@@ -110,9 +161,46 @@ bool vogleditor_settings::from_json(const json_document &doc)
     m_settings.window_size_width = pSettingsNode->value_as_int("window_size_width", m_settings.window_size_width);
     m_settings.window_size_height = pSettingsNode->value_as_int("window_size_height", m_settings.window_size_height);
 
-    m_settings.groups_state_render = pSettingsNode->value_as_bool("groups_state_render", m_settings.groups_state_render);
-    m_settings.groups_push_pop_markers[0] = pSettingsNode->value_as_bool("groups_push_pop_markers", m_settings.groups_push_pop_markers);
-    m_settings.groups_nested_calls = pSettingsNode->value_as_bool("groups_nested_calls", m_settings.groups_nested_calls);
+#ifdef LLL
+    // validate that groups node exists
+/*  const json_node *pGroupsNode = doc.get_root()->find_child_object("groups");
+    if (pGroupsNode == NULL)
+    {
+        return false;
+    }
+
+    m_settings.groups_state_render = pGroupsNode->value_as_bool("groups_state_render", m_settings.groups_state_render);
+    m_settings.groups_push_pop_markers = pGroupsNode->value_as_bool("groups_push_pop_markers", m_settings.groups_push_pop_markers);
+    m_settings.groups_nested_calls = pGroupsNode->value_as_bool("groups_nested_calls", m_settings.groups_nested_calls); */
+#endif // LLL
+
+    // groups
+    const json_node *pGroupsNode = doc.get_root()->find_child_object("groups");
+    if (pGroupsNode == NULL)
+    {
+        return false;
+    }
+
+    // State/Render
+    const QByteArray cL8B = m_settings.state_render_name.toLocal8Bit();
+    const char *pKey = cL8B.data();
+    m_settings.state_render_stat = pGroupsNode->value_as_bool(pKey, m_settings.state_render_stat);
+
+    // Debug marker
+    for (int i=0, cnt=m_settings.debug_marker_list.count(); i< cnt; i++)
+    {
+        const QByteArray cL8B = m_settings.debug_marker_list[i].toLocal8Bit();
+        const char *pKey = cL8B.data();
+        m_settings.debug_marker_stat[i] = pGroupsNode->value_as_bool(pKey, m_settings.debug_marker_stat[i]);
+    }
+
+    // Nest options
+    for (int i=0, cnt=m_settings.nest_options_list.count(); i< cnt; i++)
+    {
+        const QByteArray cL8B = m_settings.nest_options_list[i].toLocal8Bit();
+        const char *pKey = cL8B.data();
+        m_settings.nest_options_stat[i] = pGroupsNode->value_as_bool(pKey, m_settings.nest_options_stat[i]);
+    }
 
     return true;
 }
@@ -156,9 +244,37 @@ bool vogleditor_settings::to_json(json_document &doc)
     settings.add_key_value("window_size_width", m_settings.window_size_width);
     settings.add_key_value("window_size_height", m_settings.window_size_height);
 
-    settings.add_key_value("groups_state_render", m_settings.groups_state_render);
-    settings.add_key_value("groups_push_pop_markers", m_settings.groups_push_pop_markers[0]);
-    settings.add_key_value("groups_nested_calls", m_settings.groups_nested_calls);
+#ifdef LLL
+    // groups
+/*  json_node &groups = doc.get_root()->add_object("groups");
+    groups.add_key_value("groups_state_render", m_settings.groups_state_render);
+    groups.add_key_value("groups_push_pop_markers", m_settings.groups_push_pop_markers);
+    groups.add_key_value("groups_nested_calls", m_settings.groups_nested_calls); */
+#endif // LLL
+
+    // groups
+    json_node &groups = doc.get_root()->add_object("groups");
+
+    // State/Render
+    const QByteArray cL8B = m_settings.state_render_name.toLocal8Bit();
+    const char *pKey = cL8B.data();
+    groups.add_key_value(pKey, m_settings.state_render_stat);
+
+    // Debug marker
+    for (int i=0, cnt=m_settings.debug_marker_list.count(); i< cnt; i++)
+    {
+        const QByteArray cL8B = m_settings.debug_marker_list[i].toLocal8Bit();
+        const char *pKey = cL8B.data();
+        groups.add_key_value(pKey, m_settings.debug_marker_stat[i]);
+    }
+
+    // Nest options
+    for (int i=0, cnt=m_settings.nest_options_list.count(); i< cnt; i++)
+    {
+        const QByteArray cL8B = m_settings.nest_options_list[i].toLocal8Bit();
+        const char *pKey = cL8B.data();
+        groups.add_key_value(pKey, m_settings.nest_options_stat[i]);
+    }
 
     return true;
 }

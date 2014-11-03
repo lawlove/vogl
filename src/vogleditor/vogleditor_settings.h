@@ -1,9 +1,11 @@
 #ifndef VOGLEDITOR_SETTINGS_H
 #define VOGLEDITOR_SETTINGS_H
 
+//#include "vogleditor_settingsgroup.h"
 #include "vogl_dynamic_string.h"
 #include "vogl_json.h"
 #include <QStringList>
+#include <QVector>
 
 class vogleditor_settings;
 extern vogleditor_settings g_settings;
@@ -16,22 +18,29 @@ struct vogleditor_setting_struct
     int window_size_height;
     unsigned int trim_large_trace_prompt_size;
 
-    bool groups_state_render;
-    bool *groups_push_pop_markers;
-    bool groups_nested_calls;
+#ifdef LLL
+/*  bool groups_state_render;
+    bool groups_push_pop_markers;
+    bool groups_nested_calls; */
+#endif // LLL
 
-    
-    vogleditor_setting_struct()
-    {
-        groups_push_pop_markers = new bool [2];
-        //groups_push_pop_markers = vogl_new_array(bool, vogleditor_QSettingsDialog().groupsDebugMarkerListSize());
-        //groups_nested_calls = vogl_new_array(bool, sizeof);
-    }
-   ~vogleditor_setting_struct()
-    {
-        //vogl_delete_array (groups_push_pop_markers);
-        //vogl_delete_array (groups_nested_calls);
-    }
+    QString state_render_name;
+    bool    state_render_stat;
+    bool    state_render_used;
+
+    QStringList   debug_marker_list;
+    QVector<bool> debug_marker_stat;
+    QVector<bool> debug_marker_used;
+
+    QStringList   nest_options_list;
+    QVector<bool> nest_options_stat;
+    QVector<bool> nest_options_used;
+
+#ifdef LLL
+/*  QStringList   group_list;
+    QVector<bool> group_settings;
+    QVector<bool> group_enabled; */
+#endif // LLL
 };
 
 class vogleditor_settings
@@ -90,13 +99,15 @@ public:
         m_settings.trim_large_trace_prompt_size = trim_large_trace_prompt_size;
     }
 
-    bool groups_state_render()
+#ifdef LLL
+    // Groups 1
+/*  bool groups_state_render()
     {
         return m_settings.groups_state_render;
     }
     bool groups_push_pop_markers()
     {
-        return m_settings.groups_push_pop_markers[0];
+        return m_settings.groups_push_pop_markers;
     }
     bool groups_nested_calls()
     {
@@ -108,11 +119,94 @@ public:
     }
     void set_groups_push_pop_markers(bool groups_push_pop_markers)
     {
-        m_settings.groups_push_pop_markers[0] = groups_push_pop_markers;
+        m_settings.groups_push_pop_markers = groups_push_pop_markers;
     }
     void set_groups_nested_calls(bool groups_nested_calls)
     {
         m_settings.groups_nested_calls = groups_nested_calls;
+    }
+
+    // Groups 2
+    QStringList group_names()
+    {
+        return m_settings.group_list;
+    }
+    void set_group_names(QStringList groupnames)
+    {
+        m_settings.group_list = groupnames;
+    }
+
+    QVector<bool> group_settings()
+    {
+        return m_settings.group_settings;
+    }
+    void set_group_settings(QVector<bool> groupsettings)
+    {
+        m_settings.group_settings = groupsettings;
+    } */
+#endif //LLL
+
+    // Groups 3
+    // State/Render
+    QString group_state_render_name()
+    {
+        return m_settings.state_render_name;
+    }
+    bool group_state_render_stat()
+    {
+        return m_settings.state_render_stat;
+    }
+    void set_group_state_render_stat(bool state_render_stat)
+    {
+        m_settings.state_render_stat = state_render_stat;
+    }
+    bool group_state_render_used()
+    {
+        return m_settings.state_render_used;
+    }
+
+    // Debug marker
+    QStringList group_debug_marker_names()
+    {
+        return m_settings.debug_marker_list;
+    }
+    QVector<bool> group_debug_marker_stat()
+    {
+        return m_settings.debug_marker_stat;
+    }
+    void set_group_debug_marker_stat(QVector<bool> debug_marker_stat)
+    {
+        m_settings.debug_marker_stat = debug_marker_stat;
+    }
+    QVector<bool> group_debug_marker_used()
+    {
+        return m_settings.debug_marker_used;
+    }
+    void set_group_debug_marker_used(QVector<bool> debug_marker_used)
+    {
+        m_settings.debug_marker_used = debug_marker_used;
+    }
+
+    // Nest options
+    QStringList group_nest_options_names()
+    {
+        return m_settings.nest_options_list;
+    }
+    QVector<bool> group_nest_options_stat()
+    {
+        return m_settings.nest_options_stat;
+    }
+    void set_group_nest_options_stat(QVector<bool> nest_options_stat)
+    {
+        m_settings.nest_options_stat = nest_options_stat;
+    }
+    QVector<bool> group_nest_options_used()
+    {
+        return m_settings.nest_options_used;
+    }
+    void set_group_nest_options_used(QVector<bool> nest_options_used)
+    {
+        m_settings.nest_options_used = nest_options_used;
     }
 
 private:

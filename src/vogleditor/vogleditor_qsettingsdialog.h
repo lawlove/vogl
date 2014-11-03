@@ -2,6 +2,7 @@
 #define VOGLEDITOR_QSETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QVector>
 
 class QVBoxLayout;
 class QScrollArea;
@@ -20,26 +21,27 @@ public:
     explicit vogleditor_QSettingsDialog(QWidget *parent = 0);
     ~vogleditor_QSettingsDialog();
 
-    int groupsDebugMarkerListSize();
-    int groupsNestOptionsListSize();
-
+    bool groupOptionsChanged();
     void save(const char* settingsFile);
 
 private slots:
     void checkboxCB(int);
+    void groupboxCB(bool);
 
 private:
+    QVector<bool> checkboxValues(QGroupBox *);
+    QVector<bool> groupState();
     void clearLayout(QLayout*);
 
 private:
     Ui::vogleditor_QSettingsDialog *ui;
 
-    QCheckBox  *m_pCheckboxStateRender; 
-    QCheckBox **m_pCheckboxDebugMarker;
-    QCheckBox **m_pCheckboxNestOptions;
+    QVector<bool> m_bGroupInitialState;
 
-    int m_debugMarkerListSize;
-    int m_nestOptionsListSize;
+    QCheckBox  *m_pCheckboxStateRender; 
+    QGroupBox  *m_pGroupboxNestOptions; 
+    QVector<QCheckBox*> m_pCheckboxDebugMarker;
+    QVector<QCheckBox*> m_pCheckboxNestOptions;
 };
 
 #endif // VOGLEDITOR_QSETTINGSDIALOG_H
