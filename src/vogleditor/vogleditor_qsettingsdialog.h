@@ -25,6 +25,7 @@ public:
     void save(const char* settingsFile);
 
 private slots:
+    void tabCB(int);
     void checkboxCB(int);
     void groupboxCB(bool);
 
