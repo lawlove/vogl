@@ -32,6 +32,7 @@ private slots:
 private:
     QVector<bool> checkboxValues(QGroupBox *);
     QVector<bool> groupState();
+    void updateTextTab();
     void clearLayout(QLayout*);
 
 private:
