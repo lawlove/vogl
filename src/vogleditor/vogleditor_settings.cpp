@@ -48,6 +48,9 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.debug_marker_used[1] = false;
 
     // Nest options
+    m_defaults.groupbox_nest_options_name = "Nest options";
+    m_defaults.groupbox_nest_options_stat = true;
+    m_defaults.groupbox_nest_options_used = true;
     for (int i=0, cnt=m_defaults.nest_options_list.count(); i< cnt; i++)
     {
         m_defaults.nest_options_stat << false;
@@ -56,8 +59,6 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.nest_options_stat[0] = true; // glBegin/End
 
     m_settings = m_defaults;
-
-    group_update_active_lists();
 }
 
 dynamic_string vogleditor_settings::get_settings_path(const char *settingsFilename)
@@ -153,20 +154,23 @@ bool vogleditor_settings::from_json(const json_document &doc)
     }
 
     // State/Render
-    const QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
+    QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
     m_settings.state_render_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.state_render_stat);
 
     // Debug marker
     for (int i=0, cnt=m_settings.debug_marker_list.count(); i< cnt; i++)
     {
-        const QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
+        QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
         m_settings.debug_marker_stat[i] = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_stat[i]);
     }
 
     // Nest options
+    pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();
+    m_settings.groupbox_nest_options_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.groupbox_nest_options_stat);
+
     for (int i=0, cnt=m_settings.nest_options_list.count(); i< cnt; i++)
     {
-        const QByteArray pKey = m_settings.nest_options_list[i].toLocal8Bit();
+        QByteArray pKey = m_settings.nest_options_list[i].toLocal8Bit();
         m_settings.nest_options_stat[i] = pGroupsNode->value_as_bool(pKey.data(), m_settings.nest_options_stat[i]);
     }
 
@@ -181,6 +185,10 @@ bool vogleditor_settings::load(const char *settingsFile)
     if (settingsDoc.deserialize_file(path.c_str()))
     {
         bLoaded = this->from_json(settingsDoc);
+        if (bLoaded)
+        {
+            update_group_active_lists();
+        }
     }
 
     return bLoaded;
@@ -216,7 +224,7 @@ bool vogleditor_settings::to_json(json_document &doc)
     json_node &groups = doc.get_root()->add_object("groups");
 
     // State/Render
-    const QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
+    QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
     groups.add_key_value(pKey.data(), m_settings.state_render_stat);
 
     // Debug marker
@@ -227,6 +235,9 @@ bool vogleditor_settings::to_json(json_document &doc)
     }
 
     // Nest options
+    pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();
+    groups.add_key_value(pKey.data(), m_settings.groupbox_nest_options_stat);
+
     for (int i=0, cnt=m_settings.nest_options_list.count(); i< cnt; i++)
     {
         const QByteArray pKey = m_settings.nest_options_list[i].toLocal8Bit();

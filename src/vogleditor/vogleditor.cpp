@@ -858,11 +858,10 @@ void VoglEditor::on_actionEdit_triggered()
     if (code == QDialog::Accepted)
     {
         dialog.save(g_SETTINGS_FILE);
-        // if groupslist changed update tree display
-        // if m_groups != dialog.groups()) {}
+        // if groups changed update tree display
         if (dialog.groupOptionsChanged())
         {
-            g_settings.group_update_active_lists();
+            g_settings.update_group_active_lists();
             resetApiCallTreeModel();
         }
     }

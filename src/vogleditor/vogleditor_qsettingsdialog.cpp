@@ -3,13 +3,6 @@
 
 #include "vogleditor_settings.h"
 
-#include <QScrollArea>
-#include <QVBoxLayout>
-#include <QGroupBox>
-#include <QCheckBox>
-#include <QStringList>
-
-//static QScrollArea *scroller;
 vogleditor_QSettingsDialog::vogleditor_QSettingsDialog(QWidget *parent)
     : QDialog(parent),
       ui(new Ui::vogleditor_QSettingsDialog)
@@ -43,10 +36,15 @@ vogleditor_QSettingsDialog::vogleditor_QSettingsDialog(QWidget *parent)
     }
 
     // Nest options
-    QStringList group_nest_options_names = g_settings.group_nest_options_names();
-    m_pGroupboxNestOptions = ui->groupboxNestOptions;
-    m_pGroupboxNestOptions->setChecked(true);
 
+    // Groupbox
+    m_pGroupboxNestOptions = ui->groupboxNestOptions;
+    m_pGroupboxNestOptions->setTitle(g_settings.groupbox_nest_options_name());
+    m_pGroupboxNestOptions->setChecked(g_settings.groupbox_nest_options_stat());
+    m_pGroupboxNestOptions->setEnabled(g_settings.groupbox_nest_options_used());
+
+    // Checkboxes
+    QStringList group_nest_options_names = g_settings.group_nest_options_names();
     QVector<bool> nest_options_stat = g_settings.group_nest_options_stat();
     QVector<bool> nest_options_used = g_settings.group_nest_options_used();
     int nest_options_cnt = group_nest_options_names.size();
@@ -127,6 +125,7 @@ void vogleditor_QSettingsDialog::groupboxCB(bool state)
     // update g_settings
     g_settings.set_group_state_render_stat(m_pCheckboxStateRender->isChecked());
     g_settings.set_group_debug_marker_stat(checkboxValues(ui->groupboxDebugMarker));
+    g_settings.set_groupbox_nest_options_stat(m_pGroupboxNestOptions->isChecked());
     g_settings.set_group_nest_options_stat(checkboxValues(ui->groupboxNestOptions));
 
     //update json tab settings page
@@ -168,7 +167,8 @@ QVector<bool> vogleditor_QSettingsDialog::groupState()
     bCurrentState << checkboxValues(ui->groupboxNestOptions);
 
     return bCurrentState;
-}
+
+} // groupState
 
 bool vogleditor_QSettingsDialog::groupOptionsChanged()
 {

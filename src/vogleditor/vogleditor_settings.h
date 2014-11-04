@@ -27,6 +27,9 @@ struct vogleditor_setting_struct
     QVector<bool> debug_marker_stat;
     QVector<bool> debug_marker_used;
 
+    QString groupbox_nest_options_name;
+    bool    groupbox_nest_options_stat;
+    bool    groupbox_nest_options_used;
     QStringList   nest_options_list;
     QVector<bool> nest_options_stat;
     QVector<bool> nest_options_used;
@@ -137,6 +140,26 @@ public:
     }
 
     // Nest options
+
+    // Groupbox
+    QString groupbox_nest_options_name()
+    {
+        return m_settings.groupbox_nest_options_name;
+    }
+    bool groupbox_nest_options_stat()
+    {
+        return m_settings.groupbox_nest_options_stat;
+    }
+    void set_groupbox_nest_options_stat(bool b_val)
+    {
+        m_settings.groupbox_nest_options_stat = b_val;
+    }
+    bool groupbox_nest_options_used()
+    {
+        return m_settings.groupbox_nest_options_used;
+    }
+
+    // Checkboxes
     QStringList group_nest_options_names()
     {
         return m_settings.nest_options_list;
@@ -158,7 +181,7 @@ public:
         m_settings.nest_options_used = nest_options_used;
     }
 
-    void group_update_active_lists()
+    void update_group_active_lists()
     {
         m_active_debug_marker = active_debug_marker();
         m_active_nest_options = active_nest_options();
@@ -170,7 +193,8 @@ public:
     }
     bool is_active_nest_options (QString str)
     {
-        return m_active_nest_options.contains(str);
+        return m_settings.groupbox_nest_options_stat
+            && m_active_nest_options.contains(str);
     }
 
 private:
