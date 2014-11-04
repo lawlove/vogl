@@ -122,23 +122,26 @@ void vogleditor_QSettingsDialog::tabCB(int page)
 
 void vogleditor_QSettingsDialog::groupboxCB(bool state)
 {
-    // update g_settings
-    g_settings.set_group_state_render_stat(m_pCheckboxStateRender->isChecked());
-    g_settings.set_group_debug_marker_stat(checkboxValues(ui->groupboxDebugMarker));
-    g_settings.set_groupbox_nest_options_stat(m_pGroupboxNestOptions->isChecked());
-    g_settings.set_group_nest_options_stat(checkboxValues(ui->groupboxNestOptions));
-
-    //update json tab settings page
-    QString strSettings = g_settings.to_string();
-    ui->textEdit->setText(strSettings);
+    g_settings.set_groupbox_nest_options_stat(state);
+    updateTextTab();
 
 } // groupboxCB
 
 void vogleditor_QSettingsDialog::checkboxCB(int state)
 {
-    groupboxCB(bool(state));
+    g_settings.set_group_state_render_stat(m_pCheckboxStateRender->isChecked());
+    g_settings.set_group_debug_marker_stat(checkboxValues(ui->groupboxDebugMarker));
+    g_settings.set_group_nest_options_stat(checkboxValues(ui->groupboxNestOptions));
+    updateTextTab();
 
 } // checkboxCB
+
+void vogleditor_QSettingsDialog::updateTextTab()
+{
+    //update json tab settings page
+    QString strSettings = g_settings.to_string();
+    ui->textEdit->setText(strSettings);
+}
 
 QVector<bool> vogleditor_QSettingsDialog::checkboxValues(QGroupBox *groupBox)
 {
