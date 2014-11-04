@@ -125,14 +125,8 @@ void vogleditor_QSettingsDialog::tabCB(int page)
 void vogleditor_QSettingsDialog::groupboxCB(bool state)
 {
     // update g_settings
-
-    // State/Render
     g_settings.set_group_state_render_stat(m_pCheckboxStateRender->isChecked());
-
-    // Debug marker
     g_settings.set_group_debug_marker_stat(checkboxValues(ui->groupboxDebugMarker));
-
-    // Nest options
     g_settings.set_group_nest_options_stat(checkboxValues(ui->groupboxNestOptions));
 
     //update json tab settings page

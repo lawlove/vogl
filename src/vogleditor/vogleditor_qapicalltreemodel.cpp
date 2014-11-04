@@ -413,9 +413,8 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 
 bool vogleditor_QApiCallTreeModel::isMarkerPushEntrypoint(gl_entrypoint_id_t id) const
 {
-// TODO: implement proper check of debug markrs; this checks first
-    //if (!g_settings.groups_push_pop_markers())
-    if (!g_settings.group_debug_marker_stat()[0])
+    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
+    if (!g_settings.is_active_debug_marker(funcname))
     {
         return false;
     }
@@ -423,9 +422,8 @@ bool vogleditor_QApiCallTreeModel::isMarkerPushEntrypoint(gl_entrypoint_id_t id)
 }
 bool vogleditor_QApiCallTreeModel::isMarkerPopEntrypoint(gl_entrypoint_id_t id) const
 {
-// TODO: ditto
-    //if (!g_settings.groups_push_pop_markers())
-    if (!(g_settings.group_debug_marker_stat())[0])
+    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
+    if (!g_settings.is_active_debug_marker(funcname))
     {
         return false;
     }
@@ -433,9 +431,8 @@ bool vogleditor_QApiCallTreeModel::isMarkerPopEntrypoint(gl_entrypoint_id_t id) 
 }
 bool vogleditor_QApiCallTreeModel::isStartNestedEntrypoint(gl_entrypoint_id_t id) const
 {
-// TODO: ditto
-    //if (!g_settings.groups_nested_calls())
-    if (!(g_settings.group_nest_options_stat())[0])  // glBegin/End
+    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
+    if (!g_settings.is_active_nest_options(funcname))
     {
         return false;
     }
@@ -443,9 +440,8 @@ bool vogleditor_QApiCallTreeModel::isStartNestedEntrypoint(gl_entrypoint_id_t id
 }
 bool vogleditor_QApiCallTreeModel::isEndNestedEntrypoint(gl_entrypoint_id_t id) const
 {
-// TODO: ditto
-    //if (!g_settings.groups_nested_calls())
-    if (!g_settings.group_nest_options_stat()[0])  // glBegin/End
+    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
+    if (!g_settings.is_active_nest_options(funcname))
     {
         return false;
     }
@@ -453,8 +449,7 @@ bool vogleditor_QApiCallTreeModel::isEndNestedEntrypoint(gl_entrypoint_id_t id) 
 }
 bool vogleditor_QApiCallTreeModel::isFrameBufferWriteEntrypoint(gl_entrypoint_id_t id) const
 {
-    //if (!g_settings.groups_state_render())
-    if (!g_settings.group_state_render_stat())  // glBegin/End
+    if (!g_settings.group_state_render_stat())
     {
         return false;
     }

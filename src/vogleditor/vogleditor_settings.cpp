@@ -56,6 +56,8 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.nest_options_stat[0] = true; // glBegin/End
 
     m_settings = m_defaults;
+
+    group_update_active_lists();
 }
 
 dynamic_string vogleditor_settings::get_settings_path(const char *settingsFilename)

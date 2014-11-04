@@ -158,10 +158,56 @@ public:
         m_settings.nest_options_used = nest_options_used;
     }
 
+    void group_update_active_lists()
+    {
+        m_active_debug_marker = active_debug_marker();
+        m_active_nest_options = active_nest_options();
+    }
+
+    bool is_active_debug_marker (QString str)
+    {
+        return m_active_debug_marker.contains(str);
+    }
+    bool is_active_nest_options (QString str)
+    {
+        return m_active_nest_options.contains(str);
+    }
+
+private:
+    const QStringList active_debug_marker() const
+    {
+        
+        QStringList activeList;
+        for (int i=0; i< m_settings.debug_marker_list.count(); i++)
+        {
+            if (m_settings.debug_marker_stat[i])
+            {
+                activeList << m_settings.debug_marker_list[i].split("/");
+            }
+        }
+        return activeList;
+    }
+    const QStringList active_nest_options() const
+    {
+        
+        QStringList activeList;
+        for (int i=0; i< m_settings.nest_options_list.count(); i++)
+        {
+            if (m_settings.nest_options_stat[i])
+            {
+                activeList << m_settings.nest_options_list[i].split("/");
+            }
+        }
+        return activeList;
+    }
+
 private:
     unsigned int m_file_format_version;
     vogleditor_setting_struct m_settings;
     vogleditor_setting_struct m_defaults;
+
+    QStringList m_active_debug_marker;
+    QStringList m_active_nest_options;
 
     vogl::dynamic_string get_settings_path(const char *settingsFilename);
     bool to_json(vogl::json_document &doc);
