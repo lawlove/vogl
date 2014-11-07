@@ -9,83 +9,93 @@ vogleditor_QSettingsDialog::vogleditor_QSettingsDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Settings tab
+    // (TODO?: connect signals to g_settings)
+
+    // tab parent
+    ui->tabWidget->setCurrentIndex(g_settings.tab_page());
+
+    connect(ui->tabWidget, SIGNAL(currentChanged(int)),
+            SLOT(tabCB(int)));
+
+    connect(ui->buttonBox, SIGNAL(rejected()), SLOT(cancelCB()));
+
+    // Startup settings tab
     QString strSettings = g_settings.to_string();
 
     ui->textEdit->setText(strSettings);
 
-    // Groups tab
+    // Group settings tab
 
-    // State/Render
-    m_pCheckboxStateRender = ui->checkboxStateRender;
-    m_pCheckboxStateRender->setText(g_settings.group_state_render_name());
-    m_pCheckboxStateRender->setChecked(g_settings.group_state_render_stat());
-    m_pCheckboxStateRender->setEnabled(g_settings.group_state_render_used());
+    // State Render
+    ui->checkboxStateRender->setText(g_settings.group_state_render_name());
+    ui->checkboxStateRender->setChecked(g_settings.group_state_render_stat());
+    ui->checkboxStateRender->setEnabled(g_settings.group_state_render_used());
+
+    connect(ui->checkboxStateRender, SIGNAL(stateChanged(int)),
+            SLOT(checkboxCB(int)));
 
     // Debug markers
-    QStringList   group_debug_marker_names = g_settings.group_debug_marker_names();
+    QVector<QCheckBox *> checkboxList;
+
+    QStringList group_debug_marker_names = g_settings.group_debug_marker_names();
     QVector<bool> debug_marker_stat = g_settings.group_debug_marker_stat();
     QVector<bool> debug_marker_used = g_settings.group_debug_marker_used();
     int debug_marker_cnt = group_debug_marker_names.size();
-    for (int i=0; i < debug_marker_cnt; i++)
+    for (int i = 0; i < debug_marker_cnt; i++)
     {
-        m_pCheckboxDebugMarker << new QCheckBox(group_debug_marker_names[i], ui->groupboxDebugMarker);
-        m_pCheckboxDebugMarker[i]->setChecked(debug_marker_stat[i]);
-        m_pCheckboxDebugMarker[i]->setEnabled(debug_marker_used[i]);
-        ui->vLayout_groupboxDebugMarker->addWidget(m_pCheckboxDebugMarker[i]);
+        checkboxList << new QCheckBox(group_debug_marker_names[i], ui->groupboxDebugMarker);
+        checkboxList[i]->setChecked(debug_marker_stat[i]);
+        checkboxList[i]->setEnabled(debug_marker_used[i]);
+        ui->vLayout_groupboxDebugMarker->insertWidget(i, checkboxList[i]);
     }
 
+    for (int i = 0; i < debug_marker_cnt; i++)
+    {
+        connect(checkboxList[i], SIGNAL(stateChanged(int)),
+                SLOT(checkboxCB(int)));
+    }
+
+    // Debug marker options
+    ui->radiobuttonDebugMarkerNameOption->setText(g_settings.group_debug_marker_option_name_label());
+    ui->radiobuttonDebugMarkerNameOption->setChecked(g_settings.group_debug_marker_option_name_stat());
+
+    ui->radiobuttonDebugMarkerOmitOption->setText(g_settings.group_debug_marker_option_omit_label());
+    ui->radiobuttonDebugMarkerOmitOption->setChecked(g_settings.group_debug_marker_option_omit_stat());
+
+    setEnableDebugMarkerOptions();
+
+    connect(ui->radiobuttonDebugMarkerNameOption, SIGNAL(toggled(bool)),
+            SLOT(radiobuttonNameCB(bool)));
+    connect(ui->radiobuttonDebugMarkerOmitOption, SIGNAL(toggled(bool)),
+            SLOT(radiobuttonOmitCB(bool)));
     // Nest options
+    checkboxList.clear();
 
     // Groupbox
-    m_pGroupboxNestOptions = ui->groupboxNestOptions;
-    m_pGroupboxNestOptions->setTitle(g_settings.groupbox_nest_options_name());
-    m_pGroupboxNestOptions->setChecked(g_settings.groupbox_nest_options_stat());
-    m_pGroupboxNestOptions->setEnabled(g_settings.groupbox_nest_options_used());
+    ui->groupboxNestOptions->setTitle(g_settings.groupbox_nest_options_name());
+    ui->groupboxNestOptions->setChecked(g_settings.groupbox_nest_options_stat());
+    ui->groupboxNestOptions->setEnabled(g_settings.groupbox_nest_options_used());
 
     // Checkboxes
     QStringList group_nest_options_names = g_settings.group_nest_options_names();
     QVector<bool> nest_options_stat = g_settings.group_nest_options_stat();
     QVector<bool> nest_options_used = g_settings.group_nest_options_used();
     int nest_options_cnt = group_nest_options_names.size();
-    for (int i=0; i < nest_options_cnt; i++)
+    for (int i = 0; i < nest_options_cnt; i++)
     {
-        m_pCheckboxNestOptions << new QCheckBox(group_nest_options_names[i], ui->groupboxDebugMarker);
-        m_pCheckboxNestOptions[i]->setChecked(nest_options_stat[i]);
-        m_pCheckboxNestOptions[i]->setEnabled(nest_options_used[i]);
-        ui->vLayout_groupboxNestOptionsScrollarea->addWidget(m_pCheckboxNestOptions[i]);
+        checkboxList << new QCheckBox(group_nest_options_names[i], ui->groupboxNestOptions);
+        checkboxList[i]->setChecked(nest_options_stat[i]);
+        checkboxList[i]->setEnabled(nest_options_used[i]);
+        ui->vLayout_groupboxNestOptionsScrollarea->addWidget(checkboxList[i]);
     }
 
-    // Connect tab
-    if(g_settings.tab_page())
+    connect(ui->groupboxNestOptions, SIGNAL(toggled(bool)), // groupbox
+            SLOT(groupboxCB(bool)));
+
+    for (int i = 0; i < nest_options_cnt; i++) // checkboxes in groupbox
     {
-        ui->tabWidget->setCurrentIndex(g_settings.tab_page());
-    }
-    connect(ui->tabWidget, SIGNAL(currentChanged(int)),
-                           SLOT(tabCB(int)));
-
-
-    // Connect checkbox callbacks
-
-    // State Render
-    connect(m_pCheckboxStateRender, SIGNAL(stateChanged(int)),
-                                    SLOT(checkboxCB(int)));
-
-    // Debug marker
-    for (int i=0; i < debug_marker_cnt; i++)
-    {
-        connect(m_pCheckboxDebugMarker[i], SIGNAL(stateChanged(int)),
-                                           SLOT(checkboxCB(int)));
-    }
-
-    // Nest options
-    connect(m_pGroupboxNestOptions, SIGNAL(toggled(bool)), // groupbox
-                                    SLOT(groupboxCB(bool)));
-
-    for (int i=0; i < nest_options_cnt; i++) // checkboxes in groupbox
-    {
-        connect(m_pCheckboxNestOptions[i], SIGNAL(stateChanged(int)),
-                                           SLOT(checkboxCB(int)));
+        connect(checkboxList[i], SIGNAL(stateChanged(int)),
+                SLOT(checkboxCB(int)));
     }
 
     // Save initial state
@@ -102,9 +112,9 @@ vogleditor_QSettingsDialog::~vogleditor_QSettingsDialog()
 
 void vogleditor_QSettingsDialog::clearLayout(QLayout *layout)
 {
-// taken from
-// http://stackoverflow.com/questions/4272196/qt-remove-all-widgets-from-layout
-// ... didn't seem to make any difference using valgrind Memcheck...
+    // taken from
+    // http://stackoverflow.com/questions/4272196/qt-remove-all-widgets-from-layout
+    // ... didn't seem to make any difference using valgrind Memcheck...
 
     while (QLayoutItem *item = layout->takeAt(0))
     {
@@ -129,12 +139,50 @@ void vogleditor_QSettingsDialog::groupboxCB(bool state)
 
 void vogleditor_QSettingsDialog::checkboxCB(int state)
 {
-    g_settings.set_group_state_render_stat(m_pCheckboxStateRender->isChecked());
+    g_settings.set_group_state_render_stat(ui->checkboxStateRender->isChecked());
     g_settings.set_group_debug_marker_stat(checkboxValues(ui->groupboxDebugMarker));
     g_settings.set_group_nest_options_stat(checkboxValues(ui->groupboxNestOptions));
+
+    setEnableDebugMarkerOptions();
+
     updateTextTab();
 
 } // checkboxCB
+
+void vogleditor_QSettingsDialog::setEnableDebugMarkerOptions()
+{
+    //  Disable options if no Debug marker groups are checked
+    QVector<bool> bCurrentState = checkboxValues(ui->groupboxDebugMarker);
+
+    bool bVal;
+    foreach(bVal, bCurrentState)
+    {
+        if (bVal)
+            break;
+    }
+    enableDebugMarkerOptions(bVal);
+}
+void vogleditor_QSettingsDialog::enableDebugMarkerOptions(bool bVal)
+{
+    ui->radiobuttonDebugMarkerNameOption->setEnabled(bVal);
+    ui->radiobuttonDebugMarkerOmitOption->setEnabled(bVal);
+
+    // Notify g_settings
+    g_settings.set_group_debug_marker_option_name_used(bVal);
+    g_settings.set_group_debug_marker_option_omit_used(bVal);
+}
+
+void vogleditor_QSettingsDialog::radiobuttonNameCB(bool state)
+{
+    g_settings.set_group_debug_marker_option_name_stat(state);
+    updateTextTab();
+}
+
+void vogleditor_QSettingsDialog::radiobuttonOmitCB(bool state)
+{
+    g_settings.set_group_debug_marker_option_omit_stat(state);
+    updateTextTab();
+}
 
 void vogleditor_QSettingsDialog::updateTextTab()
 {
@@ -143,12 +191,15 @@ void vogleditor_QSettingsDialog::updateTextTab()
     ui->textEdit->setText(strSettings);
 }
 
-QVector<bool> vogleditor_QSettingsDialog::checkboxValues(QGroupBox *groupBox)
+QVector<bool> vogleditor_QSettingsDialog::checkboxValues(QObject *widget)
 {
-    QList<QCheckBox*> groupCheckBoxes = groupBox->findChildren<QCheckBox*>();
+    // Note: This function is intended to only return checkbox values of
+    //       API call names, so for the Debug marker API call list parent
+    //       radiobuttons were used for the options.
+    QList<QCheckBox *> groupCheckBoxes = widget->findChildren<QCheckBox *>();
 
     QVector<bool> bQVector;
-    QList<QCheckBox*>::const_iterator iter = groupCheckBoxes.begin();
+    QList<QCheckBox *>::const_iterator iter = groupCheckBoxes.begin();
 
     while (iter != groupCheckBoxes.end())
     {
@@ -163,24 +214,58 @@ QVector<bool> vogleditor_QSettingsDialog::groupState()
 {
     QVector<bool> bCurrentState;
 
-    bCurrentState << m_pCheckboxStateRender->isChecked();
-    bCurrentState << m_pGroupboxNestOptions->isChecked();
+    bCurrentState << ui->checkboxStateRender->isChecked();
+    bCurrentState << ui->groupboxNestOptions->isChecked();
 
     bCurrentState << checkboxValues(ui->groupboxDebugMarker);
     bCurrentState << checkboxValues(ui->groupboxNestOptions);
 
+    bCurrentState << ui->radiobuttonDebugMarkerNameOption->isChecked();
+    bCurrentState << ui->radiobuttonDebugMarkerOmitOption->isChecked();
+
     return bCurrentState;
 
 } // groupState
+
+void vogleditor_QSettingsDialog::reset()
+{
+    // Set in same order as saved in ::groupState()
+    //
+    // TODO: QMap these, widget key to value, in constructor
+    //       so order won't matter
+    int i = 0;
+    ui->checkboxStateRender->setChecked(m_bGroupInitialState[i++]);
+
+    ui->groupboxNestOptions->setChecked(m_bGroupInitialState[i++]);
+
+    QList<QCheckBox *> checkboxes = ui->groupboxDebugMarker->findChildren<QCheckBox *>();
+    for (int indx = 0; indx < checkboxes.count(); indx++)
+    {
+        checkboxes[indx]->setChecked(m_bGroupInitialState[i++]);
+    }
+    checkboxes = ui->groupboxNestOptions->findChildren<QCheckBox *>();
+    for (int indx = 0; indx < checkboxes.count(); indx++)
+    {
+        checkboxes[indx]->setChecked(m_bGroupInitialState[i++]);
+    }
+
+    ui->radiobuttonDebugMarkerNameOption->setChecked(m_bGroupInitialState[i++]);
+    ui->radiobuttonDebugMarkerOmitOption->setChecked(m_bGroupInitialState[i++]);
+
+} // reset
 
 bool vogleditor_QSettingsDialog::groupOptionsChanged()
 {
     return m_bGroupInitialState != groupState();
 }
 
-void vogleditor_QSettingsDialog::save(const char* settingsFile)
+void vogleditor_QSettingsDialog::cancelCB()
+{
+    reset();
+}
+
+void vogleditor_QSettingsDialog::save(const char *settingsFile)
 {
     g_settings.from_string(ui->textEdit->toPlainText().toStdString().c_str());
     g_settings.save(settingsFile);
 }
-

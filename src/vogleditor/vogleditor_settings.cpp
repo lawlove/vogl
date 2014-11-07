@@ -28,8 +28,8 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.nest_options_list
         << "glBegin/glEnd"
         << "glNewList/glEndList"
-        << "glPushName/glPopName"
         << "glPushMatrix/glPopMatrix"
+        << "glPushName/glPopName"
         << "glPushAttrib/glPopAttrib"
         << "glPushClientAttrib/glPopClientAttrib";
 
@@ -39,19 +39,27 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.state_render_used = true;
 
     // Debug marker
-    for (int i=0, cnt=m_defaults.debug_marker_list.count(); i< cnt; i++)
+    for (int i = 0, cnt = m_defaults.debug_marker_list.count(); i < cnt; i++)
     {
         m_defaults.debug_marker_stat << true;
         m_defaults.debug_marker_used << true;
     }
     m_defaults.debug_marker_stat[1] = false; // glPush/PopGroupMarkerEXT
-    m_defaults.debug_marker_used[1] = false;
+    m_defaults.debug_marker_used[1] = false; // disable
+
+    m_defaults.debug_marker_option_name_labl = "Use text argument as label";
+    m_defaults.debug_marker_option_name_stat = false;
+    m_defaults.debug_marker_option_name_used = true;
+
+    m_defaults.debug_marker_option_omit_labl = "Hide terminating API call";
+    m_defaults.debug_marker_option_omit_stat = false;
+    m_defaults.debug_marker_option_omit_used = true;
 
     // Nest options
     m_defaults.groupbox_nest_options_name = "Nest options";
     m_defaults.groupbox_nest_options_stat = true;
     m_defaults.groupbox_nest_options_used = true;
-    for (int i=0, cnt=m_defaults.nest_options_list.count(); i< cnt; i++)
+    for (int i = 0, cnt = m_defaults.nest_options_list.count(); i < cnt; i++)
     {
         m_defaults.nest_options_stat << false;
         m_defaults.nest_options_used << true;
@@ -157,18 +165,24 @@ bool vogleditor_settings::from_json(const json_document &doc)
     QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
     m_settings.state_render_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.state_render_stat);
 
-    // Debug marker
-    for (int i=0, cnt=m_settings.debug_marker_list.count(); i< cnt; i++)
+    // Debug marker list
+    for (int i = 0, cnt = m_settings.debug_marker_list.count(); i < cnt; i++)
     {
         QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
         m_settings.debug_marker_stat[i] = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_stat[i]);
     }
+    // Debug marker options
+    pKey = m_settings.debug_marker_option_name_labl.toLocal8Bit();
+    m_settings.debug_marker_option_name_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_option_name_stat);
 
-    // Nest options
+    pKey = m_settings.debug_marker_option_omit_labl.toLocal8Bit();
+    m_settings.debug_marker_option_omit_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_option_omit_stat);
+
+    // Nest options list
     pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();
     m_settings.groupbox_nest_options_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.groupbox_nest_options_stat);
 
-    for (int i=0, cnt=m_settings.nest_options_list.count(); i< cnt; i++)
+    for (int i = 0, cnt = m_settings.nest_options_list.count(); i < cnt; i++)
     {
         QByteArray pKey = m_settings.nest_options_list[i].toLocal8Bit();
         m_settings.nest_options_stat[i] = pGroupsNode->value_as_bool(pKey.data(), m_settings.nest_options_stat[i]);
@@ -227,18 +241,24 @@ bool vogleditor_settings::to_json(json_document &doc)
     QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
     groups.add_key_value(pKey.data(), m_settings.state_render_stat);
 
-    // Debug marker
-    for (int i=0, cnt=m_settings.debug_marker_list.count(); i< cnt; i++)
+    // Debug marker list
+    for (int i = 0, cnt = m_settings.debug_marker_list.count(); i < cnt; i++)
     {
         const QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
         groups.add_key_value(pKey.data(), m_settings.debug_marker_stat[i]);
     }
+    // Debug marker options
+    pKey = m_settings.debug_marker_option_name_labl.toLocal8Bit();
+    groups.add_key_value(pKey.data(), m_settings.debug_marker_option_name_stat);
 
-    // Nest options
+    pKey = m_settings.debug_marker_option_omit_labl.toLocal8Bit();
+    groups.add_key_value(pKey.data(), m_settings.debug_marker_option_omit_stat);
+
+    // Nest options list
     pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();
     groups.add_key_value(pKey.data(), m_settings.groupbox_nest_options_stat);
 
-    for (int i=0, cnt=m_settings.nest_options_list.count(); i< cnt; i++)
+    for (int i = 0, cnt = m_settings.nest_options_list.count(); i < cnt; i++)
     {
         const QByteArray pKey = m_settings.nest_options_list[i].toLocal8Bit();
         groups.add_key_value(pKey.data(), m_settings.nest_options_stat[i]);
