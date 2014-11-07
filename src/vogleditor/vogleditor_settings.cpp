@@ -28,8 +28,8 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.nest_options_list
         << "glBegin/glEnd"
         << "glNewList/glEndList"
-        << "glPushName/glPopName"
         << "glPushMatrix/glPopMatrix"
+        << "glPushName/glPopName"
         << "glPushAttrib/glPopAttrib"
         << "glPushClientAttrib/glPopClientAttrib";
 
@@ -45,7 +45,15 @@ vogleditor_settings::vogleditor_settings()
         m_defaults.debug_marker_used << true;
     }
     m_defaults.debug_marker_stat[1] = false; // glPush/PopGroupMarkerEXT
-    m_defaults.debug_marker_used[1] = false;
+    m_defaults.debug_marker_used[1] = false; // disable
+
+    m_defaults.debug_marker_option_name_labl = "Use text argument as label";
+    m_defaults.debug_marker_option_name_stat = false;
+    m_defaults.debug_marker_option_name_used = true;
+
+    m_defaults.debug_marker_option_omit_labl = "Hide terminating API call";
+    m_defaults.debug_marker_option_omit_stat = false;
+    m_defaults.debug_marker_option_omit_used = true;
 
     // Nest options
     m_defaults.groupbox_nest_options_name = "Nest options";
@@ -163,6 +171,11 @@ bool vogleditor_settings::from_json(const json_document &doc)
         QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
         m_settings.debug_marker_stat[i] = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_stat[i]);
     }
+    pKey = m_settings.debug_marker_option_name_labl.toLocal8Bit();
+    m_settings.debug_marker_option_name_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_option_name_stat);
+
+    pKey = m_settings.debug_marker_option_omit_labl.toLocal8Bit();
+    m_settings.debug_marker_option_omit_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_option_omit_stat);
 
     // Nest options
     pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();
@@ -233,6 +246,11 @@ bool vogleditor_settings::to_json(json_document &doc)
         const QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
         groups.add_key_value(pKey.data(), m_settings.debug_marker_stat[i]);
     }
+    pKey = m_settings.debug_marker_option_name_labl.toLocal8Bit();
+    groups.add_key_value(pKey.data(), m_settings.debug_marker_option_name_stat);
+
+    pKey = m_settings.debug_marker_option_omit_labl.toLocal8Bit();
+    groups.add_key_value(pKey.data(), m_settings.debug_marker_option_omit_stat);
 
     // Nest options
     pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();

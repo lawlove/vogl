@@ -290,16 +290,8 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
             vogleditor_apiCallItem *pCallItem = NULL;
             vogleditor_apiCallTreeItem *item = NULL;
 
-            // Comment following if-statement to allow marker_pop_entrypoint
-            // apicalls (e.g., glPopDebugGroup) to be added to apicall tree.
-            //
-            // TODO: Have settings dialog control if marker_pop apicalls are to
-            //       be added to tree
-            //if (!isMarkerPopEntrypoint(entrypoint_id)
-            //
-            // TEMPORARY:
-            // For now only omit for state/render groups setting
-            if (!(g_settings.group_state_render_stat() && isMarkerPopEntrypoint(entrypoint_id)))
+            // Optionally display Debug marker pop entrypoints
+            if (!(isMarkerPopEntrypoint(entrypoint_id) && hideMarkerPopApiCall()))
             {
                 // make apicall item
                 pCallItem = vogl_new(vogleditor_apiCallItem, pCurFrame, pTrace_packet, *pGL_packet);
@@ -363,9 +355,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                     // Make sure parent is a marker_push
                     if (isMarkerPushEntrypoint(itemApiCallId(pCurParent)))
                     {
-                        // TEMPORARY:
-                        // for now, only enable renaming for state/render groups
-                        if (g_settings.group_state_render_stat())
+                        if (displayMarkerTextAsLabel())
                         {
                             // Rename marker_push/pop tree nodes
                             QString msg = pCurParent->apiCallStringArg();
@@ -373,11 +363,11 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                             QString pushstring = "\"" + msg + "\"" + " group";
                             pCurParent->setApiCallColumnData(pushstring);
 
-                            // TODO: Set when settings dialog controls if marker_pop
-                            //       apicalls are added to tree
-                            //
-                            //QString popstring =  pushstring + " end";
-                            //item->setApiCallColumnData(popstring);
+                            if (!hideMarkerPopApiCall())
+                            {
+                                QString popstring =  pushstring + " end";
+                                item->setApiCallColumnData(popstring);
+                            }
                         }
                         pCurParent = pCurParent->parent();
                     }
@@ -454,6 +444,18 @@ bool vogleditor_QApiCallTreeModel::isFrameBufferWriteEntrypoint(gl_entrypoint_id
         return false;
     }
     return vogl_is_frame_buffer_write_entrypoint(id);
+}
+
+bool vogleditor_QApiCallTreeModel::displayMarkerTextAsLabel() const
+{
+    return g_settings.group_debug_marker_option_name_stat()
+        && g_settings.group_debug_marker_option_name_used();
+}
+
+bool vogleditor_QApiCallTreeModel::hideMarkerPopApiCall() const
+{
+    return g_settings.group_debug_marker_option_omit_stat()
+        && g_settings.group_debug_marker_option_omit_used();
 }
 
 gl_entrypoint_id_t vogleditor_QApiCallTreeModel::itemApiCallId(vogleditor_apiCallTreeItem *apiCallTreeItem) const

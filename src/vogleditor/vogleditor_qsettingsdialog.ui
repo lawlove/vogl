@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -46,7 +46,40 @@
          <property name="title">
           <string>Debug marker groups</string>
          </property>
-         <layout class="QVBoxLayout" name="vLayout_groupboxDebugMarker"/>
+         <layout class="QVBoxLayout" name="vLayout_groupboxDebugMarker">
+          <item>
+           <widget class="QFrame" name="frame">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QRadioButton" name="radiobuttonDebugMarkerNameOption">
+               <property name="text">
+                <string>Use text argument as label</string>
+               </property>
+               <property name="autoExclusive">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radiobuttonDebugMarkerOmitOption">
+               <property name="text">
+                <string>Hide terminating API call</string>
+               </property>
+               <property name="autoExclusive">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -69,7 +102,7 @@
                <x>0</x>
                <y>0</y>
                <width>334</width>
-               <height>153</height>
+               <height>87</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="vLayout_groupboxNestOptionsScrollarea"/>

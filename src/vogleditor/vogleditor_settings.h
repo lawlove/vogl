@@ -27,6 +27,14 @@ struct vogleditor_setting_struct
     QVector<bool> debug_marker_stat;
     QVector<bool> debug_marker_used;
 
+    QString debug_marker_option_name_labl;
+    bool    debug_marker_option_name_stat;
+    bool    debug_marker_option_name_used;
+
+    QString debug_marker_option_omit_labl;
+    bool    debug_marker_option_omit_stat;
+    bool    debug_marker_option_omit_used;
+
     QString groupbox_nest_options_name;
     bool    groupbox_nest_options_stat;
     bool    groupbox_nest_options_used;
@@ -57,6 +65,8 @@ public:
     {
         m_settings.tab_page = page;
     }
+
+    // Startup
     int window_position_left()
     {
         return m_settings.window_position_left;
@@ -99,6 +109,8 @@ public:
         m_settings.trim_large_trace_prompt_size = trim_large_trace_prompt_size;
     }
 
+    // Groups
+
     // State/Render
     QString group_state_render_name()
     {
@@ -122,6 +134,7 @@ public:
     {
         return m_settings.debug_marker_list;
     }
+
     QVector<bool> group_debug_marker_stat()
     {
         return m_settings.debug_marker_stat;
@@ -130,6 +143,7 @@ public:
     {
         m_settings.debug_marker_stat = debug_marker_stat;
     }
+
     QVector<bool> group_debug_marker_used()
     {
         return m_settings.debug_marker_used;
@@ -137,6 +151,49 @@ public:
     void set_group_debug_marker_used(QVector<bool> debug_marker_used)
     {
         m_settings.debug_marker_used = debug_marker_used;
+    }
+
+    QString group_debug_marker_option_name_label()
+    {
+        return m_settings.debug_marker_option_name_labl;
+    }
+    bool group_debug_marker_option_name_stat()
+    {
+        return m_settings.debug_marker_option_name_stat;
+    }
+    bool group_debug_marker_option_name_used()
+    {
+        return m_settings.debug_marker_option_name_used;
+    }
+
+    QString group_debug_marker_option_omit_label()
+    {
+        return m_settings.debug_marker_option_omit_labl;
+    }
+    bool group_debug_marker_option_omit_stat()
+    {
+        return m_settings.debug_marker_option_omit_stat;
+    }
+    bool group_debug_marker_option_omit_used()
+    {
+        return m_settings.debug_marker_option_omit_used;
+    }
+
+    void set_group_debug_marker_option_name_stat(bool stat)
+    {
+        m_settings.debug_marker_option_name_stat = stat;
+    }
+    void set_group_debug_marker_option_name_used(bool used)
+    {
+        m_settings.debug_marker_option_name_used = used;
+    }
+    void set_group_debug_marker_option_omit_stat(bool stat)
+    {
+        m_settings.debug_marker_option_omit_stat = stat;
+    }
+    void set_group_debug_marker_option_omit_used(bool used)
+    {
+        m_settings.debug_marker_option_omit_used = used;
     }
 
     // Nest options

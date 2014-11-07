@@ -4,8 +4,6 @@
 #include <QDialog>
 #include <QVector>
 
-class QVBoxLayout;
-class QScrollArea;
 class QGroupBox;
 class QCheckBox;
 
@@ -28,22 +26,21 @@ private slots:
     void tabCB(int);
     void checkboxCB(int);
     void groupboxCB(bool);
+    void radiobuttonNameCB(bool);
+    void radiobuttonOmitCB(bool);
 
 private:
     QVector<bool> checkboxValues(QGroupBox *);
     QVector<bool> groupState();
     void updateTextTab();
     void clearLayout(QLayout*);
+    void setEnableDebugMarkerOptions();
+    void enableDebugMarkerOptions(bool);
 
 private:
     Ui::vogleditor_QSettingsDialog *ui;
 
     QVector<bool> m_bGroupInitialState;
-
-    QCheckBox  *m_pCheckboxStateRender; 
-    QGroupBox  *m_pGroupboxNestOptions; 
-    QVector<QCheckBox*> m_pCheckboxDebugMarker;
-    QVector<QCheckBox*> m_pCheckboxNestOptions;
 };
 
 #endif // VOGLEDITOR_QSETTINGSDIALOG_H
