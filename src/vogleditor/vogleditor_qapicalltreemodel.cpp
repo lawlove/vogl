@@ -247,8 +247,27 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                         // adding them. Otherwise,
                         if (!isEndNestedEntrypoint(lastItemApiCallId()))
                         {
+// Don't create a new group if:
+// * lastitem is a Render type (framebufferwrite) and current parent is already
+//   a Render type
+// * current parent is already State change (create_group create's a new one)
                             // ...end current group and start a new one
                             // to which this will be added (in post-processing)
+#ifdef LLL
+if ((entrypoint_id == VOGL_ENTRYPOINT_glBegin) &&
+    (pCurParent->apiCallColumnData() == cTREEITEM_RENDER))
+{
+    // do  nothing; stay in render
+}
+
+//if ((isFrameBufferWriteEntrypoint(lastItemApiCallId())) && 
+//    (pCurParent->apiCallColumnData() == cTREEITEM_RENDER))
+//{
+//    // do nothing
+//}
+else if (pCurParent->apiCallColumnData() == cTREEITEM_STATECHANGES)
+#endif // LLL
+
                             pCurParent = pCurParent->parent();
                             pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
                         }
