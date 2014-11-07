@@ -17,6 +17,8 @@ vogleditor_QSettingsDialog::vogleditor_QSettingsDialog(QWidget *parent) :
     connect(ui->tabWidget, SIGNAL(currentChanged(int)),
                            SLOT(tabCB(int)));
 
+    connect(ui->buttonBox, SIGNAL(rejected()), SLOT(cancelCB()));
+
     // Startup settings tab
     QString strSettings = g_settings.to_string();
 
@@ -188,12 +190,12 @@ void vogleditor_QSettingsDialog::updateTextTab()
     ui->textEdit->setText(strSettings);
 }
 
-QVector<bool> vogleditor_QSettingsDialog::checkboxValues(QGroupBox *groupBox)
+QVector<bool> vogleditor_QSettingsDialog::checkboxValues(QObject *widget)
 {
-    // Note: This function is intended to only return API call names so 
-    //       RadioButtons are used instead of CheckBoxes for the Debug
-    //       Marker options
-    QList<QCheckBox*> groupCheckBoxes = groupBox->findChildren<QCheckBox*>();
+    // Note: This function is intended to only return checkbox values of
+    //       API call names, so for the Debug marker API call list parent
+    //       radiobuttons were used for the options.
+    QList<QCheckBox*> groupCheckBoxes = widget->findChildren<QCheckBox*>();
 
     QVector<bool> bQVector;
     QList<QCheckBox*>::const_iterator iter = groupCheckBoxes.begin();
@@ -224,9 +226,41 @@ QVector<bool> vogleditor_QSettingsDialog::groupState()
 
 } // groupState
 
+void vogleditor_QSettingsDialog::reset()
+{
+    // Set in same order as saved in ::groupState()
+    //
+    // TODO: QMap these, widget key to value, in constructor 
+    //       so order won't matter
+    int i=0;
+    ui->checkboxStateRender->setChecked(m_bGroupInitialState[i++]);
+
+    ui->groupboxNestOptions->setChecked(m_bGroupInitialState[i++]);
+
+    QList<QCheckBox*> checkboxes = ui->groupboxDebugMarker->findChildren<QCheckBox*>();
+    for(int indx=0; indx < checkboxes.count() ; indx++)
+    {
+        checkboxes[indx]->setChecked(m_bGroupInitialState[i++]);
+    }
+    checkboxes = ui->groupboxNestOptions->findChildren<QCheckBox*>();
+    for(int indx=0; indx < checkboxes.count() ; indx++)
+    {
+        checkboxes[indx]->setChecked(m_bGroupInitialState[i++]);
+    }
+
+    ui->radiobuttonDebugMarkerNameOption->setChecked(m_bGroupInitialState[i++]);
+    ui->radiobuttonDebugMarkerOmitOption->setChecked(m_bGroupInitialState[i++]);
+
+} // reset
+
 bool vogleditor_QSettingsDialog::groupOptionsChanged()
 {
     return m_bGroupInitialState != groupState();
+}
+
+void vogleditor_QSettingsDialog::cancelCB()
+{
+   reset();
 }
 
 void vogleditor_QSettingsDialog::save(const char* settingsFile)

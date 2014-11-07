@@ -2,10 +2,6 @@
 #define VOGLEDITOR_QSETTINGSDIALOG_H
 
 #include <QDialog>
-#include <QVector>
-
-class QGroupBox;
-class QCheckBox;
 
 namespace Ui {
 class vogleditor_QSettingsDialog;
@@ -28,14 +24,16 @@ private slots:
     void groupboxCB(bool);
     void radiobuttonNameCB(bool);
     void radiobuttonOmitCB(bool);
+    void cancelCB();
 
 private:
-    QVector<bool> checkboxValues(QGroupBox *);
+    QVector<bool> checkboxValues(QObject *);
     QVector<bool> groupState();
     void updateTextTab();
     void clearLayout(QLayout*);
     void setEnableDebugMarkerOptions();
     void enableDebugMarkerOptions(bool);
+    void reset();
 
 private:
     Ui::vogleditor_QSettingsDialog *ui;

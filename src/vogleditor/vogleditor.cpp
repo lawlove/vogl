@@ -1766,10 +1766,10 @@ bool VoglEditor::open_trace_file(dynamic_string filename)
 
 bool VoglEditor::resetApiCallTreeModel()
 {
-    dynamic_string str(m_openFilename.toLocal8Bit().data());
+    dynamic_string filename(m_openFilename.toLocal8Bit().data());
 
     on_action_Close_triggered();
-    pre_open_trace_file(str);
+    pre_open_trace_file(filename);
 
     return true;
 }

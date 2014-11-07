@@ -165,19 +165,20 @@ bool vogleditor_settings::from_json(const json_document &doc)
     QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
     m_settings.state_render_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.state_render_stat);
 
-    // Debug marker
+    // Debug marker list
     for (int i=0, cnt=m_settings.debug_marker_list.count(); i< cnt; i++)
     {
         QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
         m_settings.debug_marker_stat[i] = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_stat[i]);
     }
+    // Debug marker options
     pKey = m_settings.debug_marker_option_name_labl.toLocal8Bit();
     m_settings.debug_marker_option_name_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_option_name_stat);
 
     pKey = m_settings.debug_marker_option_omit_labl.toLocal8Bit();
     m_settings.debug_marker_option_omit_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.debug_marker_option_omit_stat);
 
-    // Nest options
+    // Nest options list
     pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();
     m_settings.groupbox_nest_options_stat = pGroupsNode->value_as_bool(pKey.data(), m_settings.groupbox_nest_options_stat);
 
@@ -240,19 +241,20 @@ bool vogleditor_settings::to_json(json_document &doc)
     QByteArray pKey = m_settings.state_render_name.toLocal8Bit();
     groups.add_key_value(pKey.data(), m_settings.state_render_stat);
 
-    // Debug marker
+    // Debug marker list
     for (int i=0, cnt=m_settings.debug_marker_list.count(); i< cnt; i++)
     {
         const QByteArray pKey = m_settings.debug_marker_list[i].toLocal8Bit();
         groups.add_key_value(pKey.data(), m_settings.debug_marker_stat[i]);
     }
+    // Debug marker options
     pKey = m_settings.debug_marker_option_name_labl.toLocal8Bit();
     groups.add_key_value(pKey.data(), m_settings.debug_marker_option_name_stat);
 
     pKey = m_settings.debug_marker_option_omit_labl.toLocal8Bit();
     groups.add_key_value(pKey.data(), m_settings.debug_marker_option_omit_stat);
 
-    // Nest options
+    // Nest options list
     pKey = m_settings.groupbox_nest_options_name.toLocal8Bit();
     groups.add_key_value(pKey.data(), m_settings.groupbox_nest_options_stat);
 
