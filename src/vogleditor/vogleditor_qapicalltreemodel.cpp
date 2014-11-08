@@ -365,7 +365,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 
                             if (!hideMarkerPopApiCall())
                             {
-                                QString popstring =  pushstring + " end";
+                                QString popstring = pushstring + " end";
                                 item->setApiCallColumnData(popstring);
                             }
                         }
@@ -448,14 +448,12 @@ bool vogleditor_QApiCallTreeModel::isFrameBufferWriteEntrypoint(gl_entrypoint_id
 
 bool vogleditor_QApiCallTreeModel::displayMarkerTextAsLabel() const
 {
-    return g_settings.group_debug_marker_option_name_stat()
-        && g_settings.group_debug_marker_option_name_used();
+    return g_settings.group_debug_marker_option_name_stat() && g_settings.group_debug_marker_option_name_used();
 }
 
 bool vogleditor_QApiCallTreeModel::hideMarkerPopApiCall() const
 {
-    return g_settings.group_debug_marker_option_omit_stat()
-        && g_settings.group_debug_marker_option_omit_used();
+    return g_settings.group_debug_marker_option_omit_stat() && g_settings.group_debug_marker_option_omit_used();
 }
 
 gl_entrypoint_id_t vogleditor_QApiCallTreeModel::itemApiCallId(vogleditor_apiCallTreeItem *apiCallTreeItem) const
