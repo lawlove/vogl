@@ -20,25 +20,25 @@ struct vogleditor_setting_struct
     unsigned int trim_large_trace_prompt_size;
 
     QString state_render_name;
-    bool    state_render_stat;
-    bool    state_render_used;
+    bool state_render_stat;
+    bool state_render_used;
 
-    QStringList   debug_marker_list;
+    QStringList debug_marker_list;
     QVector<bool> debug_marker_stat;
     QVector<bool> debug_marker_used;
 
     QString debug_marker_option_name_labl;
-    bool    debug_marker_option_name_stat;
-    bool    debug_marker_option_name_used;
+    bool debug_marker_option_name_stat;
+    bool debug_marker_option_name_used;
 
     QString debug_marker_option_omit_labl;
-    bool    debug_marker_option_omit_stat;
-    bool    debug_marker_option_omit_used;
+    bool debug_marker_option_omit_stat;
+    bool debug_marker_option_omit_used;
 
     QString groupbox_nest_options_name;
-    bool    groupbox_nest_options_stat;
-    bool    groupbox_nest_options_used;
-    QStringList   nest_options_list;
+    bool groupbox_nest_options_stat;
+    bool groupbox_nest_options_used;
+    QStringList nest_options_list;
     QVector<bool> nest_options_stat;
     QVector<bool> nest_options_used;
 };
@@ -244,22 +244,21 @@ public:
         m_active_nest_options = active_nest_options();
     }
 
-    bool is_active_debug_marker (QString str)
+    bool is_active_debug_marker(QString str)
     {
         return m_active_debug_marker.contains(str);
     }
-    bool is_active_nest_options (QString str)
+    bool is_active_nest_options(QString str)
     {
-        return m_settings.groupbox_nest_options_stat
-            && m_active_nest_options.contains(str);
+        return m_settings.groupbox_nest_options_stat && m_active_nest_options.contains(str);
     }
 
 private:
     const QStringList active_debug_marker() const
     {
-        
+
         QStringList activeList;
-        for (int i=0; i< m_settings.debug_marker_list.count(); i++)
+        for (int i = 0; i < m_settings.debug_marker_list.count(); i++)
         {
             if (m_settings.debug_marker_stat[i])
             {
@@ -270,9 +269,9 @@ private:
     }
     const QStringList active_nest_options() const
     {
-        
+
         QStringList activeList;
-        for (int i=0; i< m_settings.nest_options_list.count(); i++)
+        for (int i = 0; i < m_settings.nest_options_list.count(); i++)
         {
             if (m_settings.nest_options_stat[i])
             {
