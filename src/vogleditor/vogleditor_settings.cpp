@@ -62,9 +62,10 @@ vogleditor_settings::vogleditor_settings()
     for (int i = 0, cnt = m_defaults.nest_options_list.count(); i < cnt; i++)
     {
         m_defaults.nest_options_stat << false;
-        m_defaults.nest_options_used << true;
+        m_defaults.nest_options_used << false;
     }
     m_defaults.nest_options_stat[0] = true; // glBegin/End
+    m_defaults.nest_options_used[0] = true; // glBegin/End
 
     m_settings = m_defaults;
     update_group_active_lists();
