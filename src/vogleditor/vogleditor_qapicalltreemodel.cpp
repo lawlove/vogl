@@ -41,7 +41,8 @@
 #include "vogleditor_settings.h"
 
 vogleditor_QApiCallTreeModel::vogleditor_QApiCallTreeModel(QObject *parent)
-    : QAbstractItemModel(parent)
+    : QAbstractItemModel(parent),
+      m_bStateRenderGroup(false)
 {
     m_rootItem = vogl_new(vogleditor_apiCallTreeItem, this);
 }
@@ -230,13 +231,26 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                 }
             } // pCurParent->isFrame()
 
+#ifdef LLL
             else if (pCurParent->isGroup()) // parent is a state/render group?
             {
                 if (isMarkerPushEntrypoint(entrypoint_id))
                 {
                     pCurParent = pCurParent->parent();
                 }
-
+#endif // LLL
+//LLL new
+            else if (m_bStateRenderGroup)   // active state/render group?
+            {
+                if (isMarkerPushEntrypoint(entrypoint_id))
+                {
+                    while (pCurParent->isGroup())  // get out of State/Render
+                    {
+                        pCurParent = pCurParent->parent();
+                    }
+                    m_bStateRenderGroup = false;
+                }
+//LLL
                 else if (isStartNestedEntrypoint(entrypoint_id))
                 {
                     // (If new group, post-processing will add the start_nest)
@@ -247,10 +261,26 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                         // adding them. Otherwise,
                         if (!isEndNestedEntrypoint(lastItemApiCallId()))
                         {
-                            // ...end current group and start a new one
-                            // to which this will be added (in post-processing)
-                            pCurParent = pCurParent->parent();
-                            pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
+                 /* LLL */  if (pCurParent->apiCallColumnData() == cTREEITEM_RENDER)
+                 /* ^^^ */  {
+                                // ...end current group and start a new one
+                                // to which this will be added (in post-processing)
+                                while (!pCurParent->isGroup())
+                                {
+                                    pCurParent = pCurParent->parent();
+                                }
+                                pCurParent = pCurParent->parent();
+                                pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
+                /* LLL */   }
+                /* vvv */   else if ( entrypoint_id == VOGL_ENTRYPOINT_glBegin)
+                            {
+                                while (!pCurParent->isGroup())
+                                {
+                                    pCurParent = pCurParent->parent();
+                                }
+                                pCurParent = pCurParent->parent();
+                                pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
+                            }
                         }
                     }
                 } // vogl_is_start_nested_entrypoint
@@ -279,6 +309,10 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 
                     if (bStartNewGroup)
                     {
+                        while (!pCurParent->isGroup())
+                        {
+                            pCurParent = pCurParent->parent();
+                        }
                         pCurParent = pCurParent->parent();
                         pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
                     }
@@ -401,41 +435,50 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
     return found_eof_packet;
 }
 
+QString vogleditor_QApiCallTreeModel::apiCallName(gl_entrypoint_id_t id) const
+{
+    if (id != VOGL_ENTRYPOINT_INVALID)
+    {
+       return g_vogl_entrypoint_descs[id].m_pName;
+    }
+    return QString();
+}
+
 bool vogleditor_QApiCallTreeModel::isMarkerPushEntrypoint(gl_entrypoint_id_t id) const
 {
-    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_debug_marker(funcname))
+    QString funcname = apiCallName(id);
+    if ((!funcname.isEmpty()) && g_settings.is_active_debug_marker(funcname))
     {
-        return false;
+        return vogl_is_marker_push_entrypoint(id);
     }
-    return vogl_is_marker_push_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isMarkerPopEntrypoint(gl_entrypoint_id_t id) const
 {
-    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_debug_marker(funcname))
+    QString funcname = apiCallName(id);
+    if ((!funcname.isEmpty()) && g_settings.is_active_debug_marker(funcname))
     {
-        return false;
+        return vogl_is_marker_pop_entrypoint(id);
     }
-    return vogl_is_marker_pop_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isStartNestedEntrypoint(gl_entrypoint_id_t id) const
 {
-    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_nest_options(funcname))
+    QString funcname = apiCallName(id);
+    if ((!funcname.isEmpty()) && g_settings.is_active_nest_options(funcname))
     {
-        return false;
+            return vogl_is_start_nested_entrypoint(id);
     }
-    return vogl_is_start_nested_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isEndNestedEntrypoint(gl_entrypoint_id_t id) const
 {
-    QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_nest_options(funcname))
+    QString funcname = apiCallName(id);
+    if ((!funcname.isEmpty()) && g_settings.is_active_nest_options(funcname))
     {
-        return false;
+        return vogl_is_end_nested_entrypoint(id);
     }
-    return vogl_is_end_nested_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isFrameBufferWriteEntrypoint(gl_entrypoint_id_t id) const
 {
@@ -504,6 +547,7 @@ vogleditor_apiCallTreeItem *vogleditor_QApiCallTreeModel::create_group(vogledito
     vogleditor_apiCallTreeItem *pNewGroupNode = vogl_new(vogleditor_apiCallTreeItem, pCurGroupObj, pParentNode);
     pParentNode->appendChild(pNewGroupNode);
     m_itemList.append(pNewGroupNode);
+    m_bStateRenderGroup = true;
     return pNewGroupNode;
 }
 

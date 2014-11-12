@@ -28,6 +28,7 @@
 
 #include <QAbstractItemModel>
 #include <QLinkedList>
+#include <QString>
 #include "vogl_common.h"
 
 class QVariant;
@@ -91,6 +92,8 @@ private:
     gl_entrypoint_id_t itemApiCallId(vogleditor_apiCallTreeItem *apiCall) const;
     gl_entrypoint_id_t lastItemApiCallId() const;
 
+    QString apiCallName(gl_entrypoint_id_t id) const;
+
     bool isMarkerPushEntrypoint(gl_entrypoint_id_t id) const;
     bool isMarkerPopEntrypoint(gl_entrypoint_id_t id) const;
     bool isStartNestedEntrypoint(gl_entrypoint_id_t id) const;
@@ -101,6 +104,7 @@ private:
     bool hideMarkerPopApiCall() const;
 
 private:
+    bool m_bStateRenderGroup;
     vogleditor_apiCallTreeItem *m_rootItem;
     vogl_ctypes *m_pTrace_ctypes;
     QLinkedList<vogleditor_apiCallTreeItem *> m_itemList;
