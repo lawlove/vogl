@@ -21,6 +21,9 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.window_size_width = 1024;
     m_defaults.window_size_height = 768;
 
+    m_defaults.state_render_nest_list
+        << "glBegin/glEnd";
+
     m_defaults.debug_marker_list
         << "glPushDebugGroup/glPopDebugGroup"
         << "glPushGroupMarkerEXT/glPopGroupMarkerEXT";
@@ -67,6 +70,9 @@ vogleditor_settings::vogleditor_settings()
     m_defaults.nest_options_stat[0] = true; // glBegin/End
 
     m_settings = m_defaults;
+
+    m_active_state_render_nest = active_state_render_nest();
+
     update_group_active_lists();
 }
 

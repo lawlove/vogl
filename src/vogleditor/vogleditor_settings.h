@@ -20,6 +20,7 @@ struct vogleditor_setting_struct
     unsigned int trim_large_trace_prompt_size;
 
     QString state_render_name;
+    QStringList state_render_nest_list;
     bool state_render_stat;
     bool state_render_used;
 
@@ -244,6 +245,12 @@ public:
         m_active_nest_options = active_nest_options();
     }
 
+    bool is_active_state_render_nest(QString str)
+    {
+        // Use allowed nest calls with State/Render groups if selected under
+        // Nest options (even though nest call item is disabled)
+        return m_active_state_render_nest.contains(str) && m_settings.state_render_stat && m_active_nest_options.contains(str);
+    }
     bool is_active_debug_marker(QString str)
     {
         return m_active_debug_marker.contains(str);
@@ -254,6 +261,15 @@ public:
     }
 
 private:
+    const QStringList active_state_render_nest() const
+    {
+        QStringList activeList;
+        for (int i = 0; i < m_settings.state_render_nest_list.count(); i++)
+        {
+            activeList << m_settings.state_render_nest_list[i].split("/");
+        }
+        return activeList;
+    }
     const QStringList active_debug_marker() const
     {
 
@@ -286,6 +302,7 @@ private:
     vogleditor_setting_struct m_settings;
     vogleditor_setting_struct m_defaults;
 
+    QStringList m_active_state_render_nest;
     QStringList m_active_debug_marker;
     QStringList m_active_nest_options;
 

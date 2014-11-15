@@ -404,46 +404,46 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 bool vogleditor_QApiCallTreeModel::isMarkerPushEntrypoint(gl_entrypoint_id_t id) const
 {
     QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_debug_marker(funcname))
+    if (g_settings.is_active_debug_marker(funcname))
     {
-        return false;
+        return vogl_is_marker_push_entrypoint(id);
     }
-    return vogl_is_marker_push_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isMarkerPopEntrypoint(gl_entrypoint_id_t id) const
 {
     QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_debug_marker(funcname))
+    if (g_settings.is_active_debug_marker(funcname))
     {
-        return false;
+        return vogl_is_marker_pop_entrypoint(id);
     }
-    return vogl_is_marker_pop_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isStartNestedEntrypoint(gl_entrypoint_id_t id) const
 {
     QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_nest_options(funcname))
+    if (g_settings.is_active_nest_options(funcname) || g_settings.is_active_state_render_nest(funcname))
     {
-        return false;
+        return vogl_is_start_nested_entrypoint(id);
     }
-    return vogl_is_start_nested_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isEndNestedEntrypoint(gl_entrypoint_id_t id) const
 {
     QString funcname = g_vogl_entrypoint_descs[id].m_pName;
-    if (!g_settings.is_active_nest_options(funcname))
+    if (g_settings.is_active_nest_options(funcname) || g_settings.is_active_state_render_nest(funcname))
     {
-        return false;
+        return vogl_is_end_nested_entrypoint(id);
     }
-    return vogl_is_end_nested_entrypoint(id);
+    return false;
 }
 bool vogleditor_QApiCallTreeModel::isFrameBufferWriteEntrypoint(gl_entrypoint_id_t id) const
 {
-    if (!g_settings.group_state_render_stat())
+    if (g_settings.group_state_render_stat())
     {
-        return false;
+        return vogl_is_frame_buffer_write_entrypoint(id);
     }
-    return vogl_is_frame_buffer_write_entrypoint(id);
+    return false;
 }
 
 bool vogleditor_QApiCallTreeModel::displayMarkerTextAsLabel() const
