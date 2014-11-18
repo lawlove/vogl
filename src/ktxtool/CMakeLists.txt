@@ -4,12 +4,13 @@ cmake_minimum_required(VERSION 2.8)
 include("${SRC_DIR}/build_options.cmake")
 
 require_pthreads()
-
-find_package(X11 REQUIRED)
+require_app()
+require_gl()
 
 include_directories(
     ${SRC_DIR}/voglcore
     ${SRC_DIR}/extlib/pxfmt
+    ${SRC_DIR}/extlib/include
     )
 
 include_directories(
@@ -27,7 +28,7 @@ add_executable(${PROJECT_NAME} ${SRC_LIST})
 target_link_libraries(${PROJECT_NAME}
     ${TELEMETRY_LIBRARY}
     ${CMAKE_DL_LIBS}
-    ${X11_X11_LIB}
+    ${APP_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     voglcore
     pxfmt
