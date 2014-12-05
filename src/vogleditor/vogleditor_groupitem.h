@@ -35,9 +35,9 @@ class vogleditor_groupItem : public vogleditor_snapshotItem
 {
 public:
     vogleditor_groupItem(vogleditor_frameItem *pFrameItem)
-        : m_pParentFrame(pFrameItem)
+        : m_pParentFrame(0) //: m_pParentFrame(pFrameItem)
     {
-        pFrameItem->appendGroup(this);
+        //pFrameItem->appendGroup(this);
     }
 
     ~vogleditor_groupItem()
