@@ -96,7 +96,6 @@ void vogleditor_apiCallTimelineModel::refresh()
                 frameStart = u64ToFloat(pFrameItem->startTime() - m_rawBaseTime);
                 vogleditor_timelineItem *pFrameTimelineItem = new vogleditor_timelineItem(frameStart, m_rootItem);
                 pFrameTimelineItem->setFrameItem(pFrameItem->frameItem());
-                m_rootItem->appendChild(pFrameTimelineItem);
             }
             else
             {
@@ -172,9 +171,7 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
             float beginFloat = u64ToFloat(pChildCallTreeItem->startTime() - m_rawBaseTime);
             float endFloat = u64ToFloat(pChildCallTreeItem->endTime() - m_rawBaseTime);
 
-            vogleditor_timelineItem *pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem);
-            pNewTimelineItem->setApiCallItem(pChildCallTreeItem->apiCallItem());
-            pParentTimelineItem->appendChild(pNewTimelineItem);
+            vogleditor_timelineItem *pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem, pChildCallTreeItem->apiCallItem());
             AddApiCallsToTimeline(pChildCallTreeItem, pNewTimelineItem);
         }
     }
