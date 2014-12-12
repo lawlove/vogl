@@ -26,57 +26,108 @@
 #include "vogleditor_timelineitem.h"
 #include "vogl_common.h"
 
-// Timeline markers (frame demarcations)
-vogleditor_timelineItem::vogleditor_timelineItem(float time, vogleditor_timelineItem *parent)
-    : m_beginTime(time),
-      m_endTime(time),
-      m_duration(0),
-      m_isSpan(false),
-      m_maxChildDuration(0),
-      m_parentItem(parent),
-      m_pFrameItem(NULL),
-      m_pApiCallItem(NULL)
-{
-    VOGL_ASSERT(parent != NULL);
-    parent->appendChild(this);
-}
-
 // Timeline root (fullspan)
 vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end)
-    : m_beginTime(begin),
+    : m_brush(NULL),
+      m_beginTime(begin),
       m_endTime(end),
       m_duration(end - begin),
       m_isSpan(true),
       m_maxChildDuration(end - begin),
       m_parentItem(NULL),
       m_pFrameItem(NULL),
+      m_pGroupItem(NULL),
       m_pApiCallItem(NULL)
 {
 }
 
+// Timeline markers (frame demarcations)
+vogleditor_timelineItem::vogleditor_timelineItem(float time, vogleditor_timelineItem *parent)
+    : m_brush(NULL),
+      m_beginTime(time),
+      m_endTime(time),
+      m_duration(0),
+      m_isSpan(false),
+      m_maxChildDuration(0),
+      m_parentItem(parent),
+      m_pFrameItem(NULL),
+      m_pGroupItem(NULL),
+      m_pApiCallItem(NULL)
+{
+    VOGL_ASSERT(parent != NULL);
+    parent->appendChild(this);
+}
+
+// Timeline groups
+vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogleditor_timelineItem *parent, vogleditor_groupItem *groupItem)
+    : m_brush(NULL),
+      m_beginTime(begin),
+      m_endTime(end),
+      m_duration(end - begin),
+      m_isSpan(true),
+      m_maxChildDuration(end - begin),
+      m_parentItem(NULL),
+      m_pFrameItem(NULL),
+      m_pGroupItem(groupItem),
+      m_pApiCallItem(NULL)
+{
+    m_brush = new QBrush(QColor(randomRGB()));
+    VOGL_ASSERT(parent != NULL);
+    parent->appendChild(this);
+}
+
 // Timeline segmented spans
 vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogleditor_timelineItem *parent, vogleditor_apiCallItem *apiCallItem)
-    : m_beginTime(begin),
+    : m_brush(NULL),
+      m_beginTime(begin),
       m_endTime(end),
       m_duration(end - begin),
       m_isSpan(true),
       m_maxChildDuration(end - begin),
       m_parentItem(parent),
       m_pFrameItem(NULL),
+      m_pGroupItem(NULL),
       m_pApiCallItem(apiCallItem)
 {
     VOGL_ASSERT(parent != NULL);
+    if (parent->getBrush())
+    {
+        m_brush = new QBrush(*parent->getBrush());
+    }
     parent->appendChild(this);
 }
 
 vogleditor_timelineItem::~vogleditor_timelineItem()
 {
+    delete m_brush;
     for (int i = 0; i < m_childItems.size(); i++)
     {
         delete m_childItems[i];
         m_childItems[i] = NULL;
     }
     m_childItems.clear();
+}
+
+unsigned int vogleditor_timelineItem::randomRGB()
+{
+#ifdef LLL
+    static bool inited = false;
+    if (!inited)
+    {
+        srand(time(NULL));
+        inited = true;
+    }
+#endif // LLL
+
+    unsigned int rgbval = 0;
+
+    for (int i = 0; i < 3; i++)
+    {
+        rgbval |= (rand() & 0xF8) << (i * 8);
+        //rgbval |= rand() & (0xF8 << (i * 8));
+    }
+
+    return rgbval;
 }
 
 void vogleditor_timelineItem::appendChild(vogleditor_timelineItem *child)

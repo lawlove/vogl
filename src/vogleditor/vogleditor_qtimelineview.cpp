@@ -27,6 +27,7 @@
 #include <QPaintEvent>
 #include "vogleditor_qtimelineview.h"
 #include "vogleditor_frameitem.h"
+#include "vogleditor_groupitem.h"
 
 vogleditor_QTimelineView::vogleditor_QTimelineView(QWidget *parent)
     : QWidget(parent),
@@ -156,7 +157,8 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
 
         if (m_pModel->get_root_item()->getBrush() == NULL)
         {
-            m_pModel->get_root_item()->setBrush(&m_triangleBrushWhite);
+            //m_pModel->get_root_item()->setBrush(&m_triangleBrushWhite);
+            m_pModel->get_root_item()->setBrush(new QBrush(m_triangleBrushWhite));
         }
 
         m_horizontalScale = (float)m_lineLength / (float)m_pModel->get_root_item()->getDuration();
@@ -216,27 +218,34 @@ bool vogleditor_QTimelineView::drawCurrentApiCallMarker(QPainter *painter,
                                                         QPolygon &triangle,
                                                         vogleditor_timelineItem *pItem)
 {
+
+    unsigned long long callNumber;
     bool bRetVal = false;
     if (pItem->getApiCallItem() != NULL)
     {
-        if (pItem->getApiCallItem()->globalCallIndex() == m_curApiCallNumber)
+        callNumber = pItem->getApiCallItem()->globalCallIndex();
+    }
+    else if (pItem->getGroupItem() != NULL)
+    {
+        callNumber = pItem->getGroupItem()->firstApiCallIndex();
+    }
+    if (callNumber == m_curApiCallNumber)
+    {
+        painter->save();
+        painter->translate(scalePositionHorizontally(pItem->getBeginTime()), 0);
+        painter->drawPolygon(triangle);
+        painter->restore();
+        bRetVal = true;
+    }
+    else
+    {
+        // check children
+        int numChildren = pItem->childCount();
+        for (int c = 0; c < numChildren; c++)
         {
-            painter->save();
-            painter->translate(scalePositionHorizontally(pItem->getBeginTime()), 0);
-            painter->drawPolygon(triangle);
-            painter->restore();
-            bRetVal = true;
-        }
-        else
-        {
-            // check children
-            int numChildren = pItem->childCount();
-            for (int c = 0; c < numChildren; c++)
+            if ((bRetVal = drawCurrentApiCallMarker(painter, triangle, pItem->child(c))))
             {
-                if ((bRetVal = drawCurrentApiCallMarker(painter, triangle, pItem->child(c))))
-                {
-                    break;
-                }
+                break;
             }
         }
     }
@@ -289,10 +298,11 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
         {
             float durationRatio = duration / m_maxItemDuration;
             int intensity = std::min(255, (int)(durationRatio * 255.0f));
-            //   painter->setBrush(*(pItem->getBrush()));
-            QColor color(intensity, 255 - intensity, 0);
-            painter->setBrush(QBrush(color));
-            painter->setPen(color);
+            painter->setBrush(*(pItem->getBrush()));
+            painter->setPen((*(pItem->getBrush())).color());
+            //QColor color(intensity, 255 - intensity, 0);
+            //painter->setBrush(QBrush(color));
+            //painter->setPen(color);
 
             // Clamp the item so that it is 1 pixel wide.
             // This is intentionally being done before updating the minimum offset

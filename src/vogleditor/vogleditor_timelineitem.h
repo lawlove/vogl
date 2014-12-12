@@ -27,17 +27,18 @@
 #define VOGLEDITOR_TIMELINEITEM_H
 
 #include <QList>
-#include <QVariant>
-#include <QAbstractItemModel>
+#include <QBrush>
 
 class vogleditor_frameItem;
+class vogleditor_groupItem;
 class vogleditor_apiCallItem;
 
 class vogleditor_timelineItem
 {
 public:
-    vogleditor_timelineItem(float time, vogleditor_timelineItem *parent);
     vogleditor_timelineItem(float begin, float end);
+    vogleditor_timelineItem(float time, vogleditor_timelineItem *parent);
+    vogleditor_timelineItem(float begin, float end, vogleditor_timelineItem *parent, vogleditor_groupItem *groupItem);
     vogleditor_timelineItem(float begin, float end, vogleditor_timelineItem *parent, vogleditor_apiCallItem *apiCallItem);
     ~vogleditor_timelineItem();
 
@@ -66,6 +67,11 @@ public:
         return m_pFrameItem;
     }
 
+    vogleditor_groupItem *getGroupItem() const
+    {
+        return m_pGroupItem;
+    }
+
     void setFrameItem(vogleditor_frameItem *pFrameItem)
     {
         m_pFrameItem = pFrameItem;
@@ -82,6 +88,9 @@ public:
     }
 
 private:
+    unsigned int randomRGB();
+
+private:
     QBrush *m_brush;
     float m_beginTime;
     float m_endTime;
@@ -93,6 +102,7 @@ private:
 
     vogleditor_timelineItem *m_parentItem;
     vogleditor_frameItem *m_pFrameItem;
+    vogleditor_groupItem *m_pGroupItem;
     vogleditor_apiCallItem *m_pApiCallItem;
 };
 

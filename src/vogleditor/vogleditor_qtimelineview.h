@@ -101,7 +101,7 @@ private:
     float m_horizontalScale;
     int m_lineLength;
     unsigned long long m_curFrame;
-    unsigned long long m_curGroup;
+    unsigned long long m_curGroup; // unused
     unsigned long long m_curApiCallNumber;
     float m_maxItemDuration;
 

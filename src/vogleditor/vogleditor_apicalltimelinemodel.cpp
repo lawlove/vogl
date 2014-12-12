@@ -157,22 +157,55 @@ float vogleditor_apiCallTimelineModel::u64ToFloat(uint64_t value)
 
 void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTreeItem *pParentCallTreeItem, vogleditor_timelineItem *pParentTimelineItem)
 {
+    vogleditor_timelineItem *pNewTimelineItem;
+
     int numChildren = pParentCallTreeItem->childCount();
     for (int c = 0; c < numChildren; c++)
     {
         vogleditor_apiCallTreeItem *pChildCallTreeItem = pParentCallTreeItem->child(c);
 
+        float beginFloat = u64ToFloat(pChildCallTreeItem->startTime() - m_rawBaseTime);
+        float endFloat = u64ToFloat(pChildCallTreeItem->endTime() - m_rawBaseTime);
+
         if (pChildCallTreeItem->isGroup())
         {
-            AddApiCallsToTimeline(pChildCallTreeItem, pParentTimelineItem);
+            // if group { if STATE { qcolor = blue
+            //     }
+            //     else if RENDER { qcolor = red
+            //     }
+            // }
+            // else if DEBUGMARKER { qcolor = randomRGB
+            // }
+            // else { qcolor = default (i.e., ::isInvalid() == true)
+            // }
+            // pParentTimelineItem = new vogleditor_timelineItem(qcolor, pParentTimelineItem);
+            //
+            // in vogleditor time line if color.isInvalid(). set intensity to time duration
+            //                 or brush.color().isInvalid()
+
+            //
+            // create a group timelineItem with group color
+            pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem, pChildCallTreeItem->groupItem());
+            //
+            // pParentTimelineItem = new vogleditor_timelineItem(pParentTimelineItem, pChildCallTreeItem->groupItem());
+            // pParentTimelineItem->setBrush(xxx);
+            //
+            // Then call AddApiCallsToTimeline with new parent and its brush
+            //
+            // Skip adding group;  just pass it in as new parent to add its
+            // children:
+            //AddApiCallsToTimeline(pChildCallTreeItem, pParentTimelineItem);
         }
         else if (pChildCallTreeItem->isApiCall())
         {
-            float beginFloat = u64ToFloat(pChildCallTreeItem->startTime() - m_rawBaseTime);
-            float endFloat = u64ToFloat(pChildCallTreeItem->endTime() - m_rawBaseTime);
-
-            vogleditor_timelineItem *pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem, pChildCallTreeItem->apiCallItem());
-            AddApiCallsToTimeline(pChildCallTreeItem, pNewTimelineItem);
+            // then pass in as the new parent of original apicall timelineitem
+            // Now, after above check for group the constructor will set brush
+            // to the parent brush color (if not in group, will be NULL)
+            //
+            pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem, pChildCallTreeItem->apiCallItem());
+            //vogleditor_timelineItem *pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem, pChildCallTreeItem->apiCallItem());
+            //AddApiCallsToTimeline(pChildCallTreeItem, pNewTimelineItem);
         }
+        AddApiCallsToTimeline(pChildCallTreeItem, pNewTimelineItem);
     }
 }
