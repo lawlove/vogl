@@ -385,12 +385,12 @@ void vogleditor_apiCallTreeItem::setColumnData(QVariant data, int column)
 
 bool vogleditor_apiCallTreeItem::isRenderGroup()
 {
-    return (apiCallColumnData() == cTREEITEM_STATECHANGES);
+    return (apiCallColumnData() == cTREEITEM_RENDER);
 }
 
 bool vogleditor_apiCallTreeItem::isStateChangeGroup()
 {
-    return (apiCallColumnData() == cTREEITEM_RENDER);
+    return (apiCallColumnData() == cTREEITEM_STATECHANGES);
 }
 
 QString vogleditor_apiCallTreeItem::apiCallColumnData() const

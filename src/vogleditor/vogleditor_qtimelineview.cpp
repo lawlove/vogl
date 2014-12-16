@@ -296,7 +296,7 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
         float scaledWidth = scaleDurationHorizontally(duration);
         if (minimumOffset < leftOffset + scaledWidth)
         {
-            if (pItem->getBrush())
+            if (pItem->brush())
             {
                 painter->setBrush(*(pItem->getBrush()));
                 painter->setPen((*(pItem->getBrush())).color());

@@ -90,10 +90,6 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
       m_pApiCallItem(apiCallItem)
 {
     VOGL_ASSERT(parent != NULL);
-    if (parent->getBrush())
-    {
-        m_brush = new QBrush(*parent->getBrush());
-    }
     parent->appendChild(this);
 }
 
@@ -169,6 +165,11 @@ int vogleditor_timelineItem::childCount() const
 vogleditor_timelineItem *vogleditor_timelineItem::parent()
 {
     return m_parentItem;
+}
+
+QBrush *vogleditor_timelineItem::brush()
+{
+    return m_brush;
 }
 
 QBrush *vogleditor_timelineItem::getBrush()

@@ -49,7 +49,8 @@ public:
 
     int childCount() const;
 
-    QBrush *getBrush();
+    QBrush *brush();    // get item brush
+    QBrush *getBrush(); // include search of ancestry for a non-NULL brush
 
     void setBrush(QBrush *brush);
 
