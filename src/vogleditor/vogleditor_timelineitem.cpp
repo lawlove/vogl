@@ -97,6 +97,16 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
     parent->appendChild(this);
 }
 
+bool vogleditor_timelineItem::isApiCallItem()
+{
+    return (m_pApiCallItem != NULL);
+}
+
+bool vogleditor_timelineItem::isGroupItem()
+{
+    return (m_pGroupItem != NULL);
+}
+
 vogleditor_timelineItem::~vogleditor_timelineItem()
 {
     delete m_brush;

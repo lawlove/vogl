@@ -62,6 +62,9 @@ public:
     bool isSpan() const;
     bool isMarker() const;
 
+    bool isGroupItem();
+    bool isApiCallItem();
+
     vogleditor_frameItem *getFrameItem() const
     {
         return m_pFrameItem;

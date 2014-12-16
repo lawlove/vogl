@@ -296,13 +296,19 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
         float scaledWidth = scaleDurationHorizontally(duration);
         if (minimumOffset < leftOffset + scaledWidth)
         {
-            float durationRatio = duration / m_maxItemDuration;
-            int intensity = std::min(255, (int)(durationRatio * 255.0f));
-            painter->setBrush(*(pItem->getBrush()));
-            painter->setPen((*(pItem->getBrush())).color());
-            //QColor color(intensity, 255 - intensity, 0);
-            //painter->setBrush(QBrush(color));
-            //painter->setPen(color);
+            if (pItem->getBrush())
+            {
+                painter->setBrush(*(pItem->getBrush()));
+                painter->setPen((*(pItem->getBrush())).color());
+            }
+            else
+            {
+                float durationRatio = duration / m_maxItemDuration;
+                int intensity = std::min(255, (int)(durationRatio * 255.0f));
+                QColor color(intensity, 255 - intensity, 0);
+                painter->setBrush(QBrush(color));
+                painter->setPen(color);
+            }
 
             // Clamp the item so that it is 1 pixel wide.
             // This is intentionally being done before updating the minimum offset
