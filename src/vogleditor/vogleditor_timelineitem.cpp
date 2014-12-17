@@ -66,12 +66,12 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
       m_duration(end - begin),
       m_isSpan(true),
       m_maxChildDuration(end - begin),
-      m_parentItem(NULL),
+      m_parentItem(parent),
       m_pFrameItem(NULL),
       m_pGroupItem(groupItem),
       m_pApiCallItem(NULL)
 {
-    m_brush = new QBrush(QColor(randomRGB()));
+    //m_brush = new QBrush(QColor(randomRGB()));
     VOGL_ASSERT(parent != NULL);
     parent->appendChild(this);
 }
@@ -95,6 +95,16 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
         m_brush = new QBrush(*parent->getBrush());
     }
     parent->appendChild(this);
+}
+
+bool vogleditor_timelineItem::isApiCallItem()
+{
+    return (m_pApiCallItem != NULL);
+}
+
+bool vogleditor_timelineItem::isGroupItem()
+{
+    return (m_pGroupItem != NULL);
 }
 
 vogleditor_timelineItem::~vogleditor_timelineItem()

@@ -383,6 +383,16 @@ void vogleditor_apiCallTreeItem::setColumnData(QVariant data, int column)
     m_columnData[column] = data;
 }
 
+bool vogleditor_apiCallTreeItem::isRenderGroup()
+{
+    return (apiCallColumnData() == cTREEITEM_RENDER);
+}
+
+bool vogleditor_apiCallTreeItem::isStateChangeGroup()
+{
+    return (apiCallColumnData() == cTREEITEM_STATECHANGES);
+}
+
 QString vogleditor_apiCallTreeItem::apiCallColumnData() const
 {
     return (columnData(VOGL_ACTC_APICALL, Qt::DisplayRole)).toString();
