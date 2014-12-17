@@ -42,7 +42,7 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end)
 }
 
 // Timeline markers (frame demarcations)
-vogleditor_timelineItem::vogleditor_timelineItem(float time, vogleditor_timelineItem *parent)
+vogleditor_timelineItem::vogleditor_timelineItem(float time, vogleditor_timelineItem *parent, vogleditor_frameItem *frameItem)
     : m_brush(NULL),
       m_beginTime(time),
       m_endTime(time),
@@ -50,7 +50,7 @@ vogleditor_timelineItem::vogleditor_timelineItem(float time, vogleditor_timeline
       m_isSpan(false),
       m_maxChildDuration(0),
       m_parentItem(parent),
-      m_pFrameItem(NULL),
+      m_pFrameItem(frameItem),
       m_pGroupItem(NULL),
       m_pApiCallItem(NULL)
 {

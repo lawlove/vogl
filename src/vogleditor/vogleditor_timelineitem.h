@@ -37,7 +37,7 @@ class vogleditor_timelineItem
 {
 public:
     vogleditor_timelineItem(float begin, float end);
-    vogleditor_timelineItem(float time, vogleditor_timelineItem *parent);
+    vogleditor_timelineItem(float time, vogleditor_timelineItem *parent, vogleditor_frameItem *groupItem);
     vogleditor_timelineItem(float begin, float end, vogleditor_timelineItem *parent, vogleditor_groupItem *groupItem);
     vogleditor_timelineItem(float begin, float end, vogleditor_timelineItem *parent, vogleditor_apiCallItem *apiCallItem);
     ~vogleditor_timelineItem();
