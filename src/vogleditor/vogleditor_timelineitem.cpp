@@ -173,7 +173,7 @@ vogleditor_timelineItem *vogleditor_timelineItem::parent()
 
 QBrush *vogleditor_timelineItem::getBrush()
 {
-    // if a local brush isn't set, use the parent's brush as a default
+    // if local brush isn't set, use first non-null ancestor's brush as default
     if (m_brush == NULL)
     {
         if (parent() != NULL)

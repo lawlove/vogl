@@ -95,6 +95,7 @@ void vogleditor_apiCallTimelineModel::refresh()
             {
                 frameStart = u64ToFloat(pFrameItem->startTime() - m_rawBaseTime);
                 vogleditor_timelineItem *pFrameTimelineItem = new vogleditor_timelineItem(frameStart, m_rootItem);
+// LLL TODO: add this to constructor as is done for groups and apicalls
                 pFrameTimelineItem->setFrameItem(pFrameItem->frameItem());
             }
             else
