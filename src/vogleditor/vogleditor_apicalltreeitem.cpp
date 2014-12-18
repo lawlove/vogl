@@ -373,6 +373,26 @@ QVariant vogleditor_apiCallTreeItem::columnData(int column, int role) const
     return QVariant();
 }
 
+void vogleditor_apiCallTreeItem::setDurationColumnData(uint64_t span)
+{
+    if (0 == span)
+    {
+        if (isApiCall())
+        {
+            span = apiCallItem()->duration();
+        }
+        else if (isGroup())
+        {
+            span = groupItem()->duration();
+        }
+        else if (isFrame())
+        {
+            span = frameItem()->duration();
+        }
+    }
+    setColumnData(QVariant(qulonglong(span)), VOGL_ACTC_DURATION);
+}
+
 void vogleditor_apiCallTreeItem::setApiCallColumnData(QString name)
 {
     setColumnData(QVariant(name), VOGL_ACTC_APICALL);
