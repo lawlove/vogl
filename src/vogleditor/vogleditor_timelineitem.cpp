@@ -107,6 +107,17 @@ bool vogleditor_timelineItem::isGroupItem()
     return (m_pGroupItem != NULL);
 }
 
+bool vogleditor_timelineItem::isFrameItem()
+{
+    return (m_pFrameItem != NULL);
+}
+
+bool vogleditor_timelineItem::isRootItem()
+{
+    return !(isApiCallItem() | isGroupItem() | isFrameItem());
+
+}
+
 vogleditor_timelineItem::~vogleditor_timelineItem()
 {
     delete m_brush;

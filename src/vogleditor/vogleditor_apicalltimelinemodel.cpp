@@ -208,20 +208,23 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
 
             //
             // create a group timelineItem with group color
-            pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem, pChildCallTreeItem->groupItem());
+            //pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, pParentTimelineItem, pChildCallTreeItem->groupItem());
+            pNewTimelineItem = new vogleditor_timelineItem(beginFloat, endFloat, m_rootItem, pChildCallTreeItem->groupItem());
             QColor color;
-            if (pChildCallTreeItem->isRenderGroup())
+            if (pChildCallTreeItem->isStateChangeGroup())
             {
-                color = Qt::darkRed;
+                //color = Qt::darkYellow;
+                color = Qt::white;
             }
-            else if (pChildCallTreeItem->isStateChangeGroup())
+            else if (pChildCallTreeItem->isRenderGroup())
             {
-                color = Qt::darkYellow;
+                //color = Qt::darkRed;
+                color = Qt::red;
             }
             pNewTimelineItem->setBrush(new QBrush(color));
             
             // make it the new parent
-            pParentTimelineItem = pNewTimelineItem;
+            //pParentTimelineItem = pNewTimelineItem;
             //
             // pParentTimelineItem = new vogleditor_timelineItem(pParentTimelineItem, pChildCallTreeItem->groupItem());
             // pParentTimelineItem->setBrush(xxx);

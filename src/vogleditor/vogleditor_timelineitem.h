@@ -62,8 +62,11 @@ public:
     bool isSpan() const;
     bool isMarker() const;
 
-    bool isGroupItem();
+// LLL may not need these...
     bool isApiCallItem();
+    bool isGroupItem();
+    bool isFrameItem();
+    bool isRootItem();
 
     vogleditor_frameItem *getFrameItem() const
     {
