@@ -234,7 +234,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
             {
                 if (isMarkerPushEntrypoint(entrypoint_id))
                 {
-                    pCurParent->setDurationColumnData();
+                    pCurParent->setDurationColumn();
                     pCurParent = pCurParent->parent();
                 }
 
@@ -250,7 +250,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                         {
                             // ...end current group and start a new one
                             // to which this will be added (in post-processing)
-                            pCurParent->setDurationColumnData();
+                            pCurParent->setDurationColumn();
                             pCurParent = pCurParent->parent();
                             pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
                         }
@@ -281,7 +281,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 
                     if (bStartNewGroup)
                     {
-                        pCurParent->setDurationColumnData();
+                        pCurParent->setDurationColumn();
                         pCurParent = pCurParent->parent();
                         pCurParent = create_group(pCurFrame, pCurGroup, pCurParent);
                     }
@@ -323,7 +323,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 
                 if (pCurParent->isGroup())
                 {
-                    pCurParent->setDurationColumnData();
+                    pCurParent->setDurationColumn();
                 }
 
                 // reset the CurParent back to the original parent so that the next frame will be at the root level
@@ -360,7 +360,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                     QString msg = item->apiCallStringArg();
 
                     QString pushstring = "\"" + msg + "\"" + " group";
-                    item->setApiCallColumnData(pushstring);
+                    item->setApiCallColumn(pushstring);
                 }
 
                 // start marker_push with this item as parent
@@ -377,7 +377,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                         QString msg = pCurParent->apiCallStringArg();
 
                         QString popstring = "\"" + msg + "\"" + " group end";
-                        item->setApiCallColumnData(popstring);
+                        item->setApiCallColumn(popstring);
                     }
                     pCurParent = pCurParent->parent();
                 }
@@ -402,7 +402,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                 {
                     // If a series, set group name only once
                     if (pCurParent->isStateChangeGroup())
-                    //if (pCurParent->apiCallColumnData() != cTREEITEM_RENDER)
+                    //if (pCurParent->apiCallColumn() != cTREEITEM_RENDER)
                     {
                         //LLL this should be ->setApiCallColumnTypeRender();
                         //    vogleditor_apicalltreeitem is where the group
@@ -410,7 +410,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                         //    determined what type it is...or should there
                         //    be a pCurParent->closeGroup() which can then
                         //    determine its type and then name itself
-                        pCurParent->setApiCallColumnData(cTREEITEM_RENDER);
+                        pCurParent->setApiCallColumn(cTREEITEM_RENDER);
                     }
                 }
             } // vogl_is_frame_buffer_write_entrypoint
