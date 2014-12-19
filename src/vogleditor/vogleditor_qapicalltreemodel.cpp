@@ -418,6 +418,11 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 
         if (pTrace_reader->get_packet_type() == cTSPTEOF)
         {
+            if (pCurParent->isGroup())
+            {
+                pCurParent->setDurationColumn();
+            }
+
             found_eof_packet = true;
             vogl_printf("Found trace file EOF packet on swap %" PRIu64 "\n", total_swaps);
             break;

@@ -214,7 +214,7 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
             if (pChildCallTreeItem->isStateChangeGroup())
             {
                 //color = Qt::darkYellow;
-                color = Qt::white;
+                color = Qt::green;
             }
             else if (pChildCallTreeItem->isRenderGroup())
             {
@@ -222,7 +222,7 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
                 color = Qt::red;
             }
             pNewTimelineItem->setBrush(new QBrush(color));
-            
+
             // make it the new parent
             //pParentTimelineItem = pNewTimelineItem;
             //

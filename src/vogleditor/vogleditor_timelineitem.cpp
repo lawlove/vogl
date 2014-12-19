@@ -115,7 +115,6 @@ bool vogleditor_timelineItem::isFrameItem()
 bool vogleditor_timelineItem::isRootItem()
 {
     return !(isApiCallItem() | isGroupItem() | isFrameItem());
-
 }
 
 vogleditor_timelineItem::~vogleditor_timelineItem()
