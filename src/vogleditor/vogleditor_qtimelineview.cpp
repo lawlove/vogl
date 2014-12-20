@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include "vogleditor_qtimelineview.h"
+#include "vogleditor_qsettings.h"
 #include "vogleditor_frameitem.h"
 #include "vogleditor_groupitem.h"
 
@@ -291,6 +292,17 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
     }
     else
     {
+#ifdef LLL
+        // put this here or have special logic in ::paint (calling function)
+        if (g_settings.group_state_render_stat())
+        {
+            // Only group time span needed
+            if (pItem->isApiCallItem())
+            {
+                return;
+            }
+        }
+#endif // LLL
         // only draw if the item will extend beyond the minimum offset
         float leftOffset = scalePositionHorizontally(pItem->getBeginTime());
         float scaledWidth = scaleDurationHorizontally(duration);
@@ -330,6 +342,13 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
             painter->drawRect(rect);
         }
 
+//#ifdef LLL
+        if (g_settings.group_state_render_stat())
+        {
+            // group time spans don't need children's time
+            return;
+        }
+//#endif // LLL
         // now draw all children
         int numChildren = pItem->childCount();
         for (int c = 0; c < numChildren; c++)
