@@ -62,7 +62,7 @@ public:
     bool isSpan() const;
     bool isMarker() const;
 
-    // LLL may not need these...
+// LLL may not need these...
     bool isApiCallItem();
     bool isGroupItem();
     bool isFrameItem();

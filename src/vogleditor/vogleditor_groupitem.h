@@ -88,21 +88,9 @@ public:
         return m_apiCallList[callCount() - 1]->endTime();
     }
 
-    inline uint64_t elapsed() const
-    {
-        return endTime() - startTime();
-    }
-
     inline uint64_t duration() const
     {
-        vogleditor_apiCallItem *child;
-
-        uint64_t total = 0;
-        foreach(child, m_apiCallList)
-        {
-            total += child->duration();
-        }
-        return total;
+        return endTime() - startTime();
     }
 
 private:

@@ -22,7 +22,6 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
-#include <QDebug>
 
 #include <QColor>
 #include <QIcon>
@@ -52,14 +51,9 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_QApiCallTreeMo
     m_columnData[VOGL_ACTC_INDEX] = "Index";
     m_columnData[VOGL_ACTC_FLAGS] = "";
     m_columnData[VOGL_ACTC_GLCONTEXT] = "GL Context";
-    //m_columnData[VOGL_ACTC_BEGINTIME] = "Begin Time";
-    //m_columnData[VOGL_ACTC_ENDTIME] = "End Time";
+    //m_ColumnTitles[VOGL_ACTC_BEGINTIME] = "Begin Time";
+    //m_ColumnTitles[VOGL_ACTC_ENDTIME] = "End Time";
     m_columnData[VOGL_ACTC_DURATION] = "Duration (ns)";
-
-    if (g_settings.group_state_render_stat())
-    {
-        m_columnData[VOGL_ACTC_ELAPSED] = "Elapsed (ns)";
-    }
 }
 
 // Constructor for frame nodes
@@ -121,8 +115,8 @@ vogleditor_apiCallTreeItem::vogleditor_apiCallTreeItem(vogleditor_apiCallItem *a
         m_columnData[VOGL_ACTC_FLAGS] = "";
         dynamic_string strContext;
         m_columnData[VOGL_ACTC_GLCONTEXT] = strContext.format("0x%" PRIx64, apiCallItem->getGLPacket()->m_context_handle).c_str();
-        //m_columnData[VOGL_ACTC_BEGINTIME] = (qulonglong)apiCallItem->startTime();
-        //m_columnData[VOGL_ACTC_ENDTIME] = (qulonglong)apiCallItem->endTime();
+        //m_columnData[VOGL_ACTC_BEGINTIME] = apiCallItem->startTime();
+        //m_columnData[VOGL_ACTC_ENDTIME] = apiCallItem->endTime();
         m_columnData[VOGL_ACTC_DURATION] = (qulonglong)apiCallItem->duration();
     }
 
@@ -325,7 +319,6 @@ int vogleditor_apiCallTreeItem::columnCount() const
     if (m_parentItem == NULL)
     {
         count = VOGL_MAX_ACTC;
-        //if (!g_settings.group_state_render_stat()) count -= 1;
     }
     else
     {
@@ -391,9 +384,6 @@ void vogleditor_apiCallTreeItem::setDurationColumn(uint64_t span)
         else if (isGroup())
         {
             span = groupItem()->duration();
-            uint64_t elapsed = groupItem()->elapsed();
-            setColumnData(QVariant(qulonglong(elapsed)), VOGL_ACTC_ELAPSED);
-            //qDebug()<<apiCallColumn()<<"start:"<<groupItem()->startTime()<<" end:"<<groupItem()->endTime();
         }
         else if (isFrame())
         {
