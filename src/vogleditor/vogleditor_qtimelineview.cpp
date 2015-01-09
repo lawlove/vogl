@@ -51,6 +51,8 @@ vogleditor_QTimelineView::vogleditor_QTimelineView(QWidget *parent)
     m_background = QBrush(QColor(200, 200, 200)); //QBrush(parent->palette().brush(parent->backgroundRole()));
     m_trianglePen = QPen(Qt::black);
     m_trianglePen.setWidth(1);
+    m_trianglePen.setJoinStyle(Qt::MiterJoin);
+    m_trianglePen.setMiterLimit(4);
     m_textPen = QPen(Qt::white);
     m_textFont.setPixelSize(50);
 
@@ -107,7 +109,7 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
 {
     int gap = 10;
     int arrowHeight = 10;
-    int arrowTop = event->rect().height() / 2 - gap - arrowHeight;
+    int arrowTop = event->rect().height() / 2 - gap -13 - arrowHeight;
     int arrowHalfWidth = 3;
     m_lineLength = event->rect().width() - 2 * gap;
 
@@ -282,7 +284,7 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
     }
 
     painter->save();
-    if (pItem->isMarker())
+    if (pItem->isMarker()) // frame marker
     {
         painter->setBrush(m_triangleBrushWhite);
         painter->setPen(m_trianglePen);
@@ -311,7 +313,17 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
             if (pItem->getBrush())
             {
                 painter->setBrush(*(pItem->getBrush()));
-                painter->setPen((*(pItem->getBrush())).color());
+//              painter->setPen((*(pItem->getBrush())).color());
+//#ifdef LLL
+//              if (*(pItem->getBrush()) == Qt::SolidPattern)
+//                  painter->setPen((*(pItem->getBrush())).color());
+//              else
+                {
+                    QPen pen(Qt::NoPen);  // don't draw rectangle boundaries
+                    pen.setColor((*(pItem->getBrush())).color()); // fill color
+                    painter->setPen(pen);
+                }
+//#endif // LLL
             }
             else
             {
@@ -319,7 +331,12 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
                 int intensity = std::min(255, (int)(durationRatio * 255.0f));
                 QColor color(intensity, 255 - intensity, 0);
                 painter->setBrush(QBrush(color));
+#ifdef LLL
                 painter->setPen(color);
+#endif // LLL
+                QPen pen(Qt::NoPen);  // don't draw rectangle boundaries
+                pen.setColor(color);  // fill color
+                painter->setPen(pen);
             }
 
             // Clamp the item so that it is 1 pixel wide.
@@ -345,8 +362,11 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
 //#ifdef LLL
         if (g_settings.group_state_render_stat())
         {
-            // group time spans don't need children's time
-            return;
+            if (!g_settings.group_debug_marker_in_use())
+            {
+                // group time spans don't need children's time
+                return;
+            }
         }
 //#endif // LLL
         // now draw all children

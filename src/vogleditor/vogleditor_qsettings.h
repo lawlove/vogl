@@ -205,6 +205,21 @@ public:
         m_settings.debug_marker_option_omit_used = used;
     }
 
+    bool group_debug_marker_in_use()
+    {
+        QVector<bool> checked_list = group_debug_marker_stat();
+
+        bool bVal;
+        foreach (bVal, checked_list)
+        {
+            if (bVal)
+                break;
+        }
+        return bVal;
+
+        // (or check options which are disabled if debug marker calls are unchecked)
+        //return (group_debug_marker_option_omit_used() || group_debug_marker_option_name_used())
+    }
     // Nest options
 
     // Groupbox
