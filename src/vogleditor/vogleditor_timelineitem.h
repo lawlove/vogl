@@ -28,6 +28,7 @@
 
 #include <QList>
 #include <QBrush>
+#include <QRectF>
 
 class vogleditor_frameItem;
 class vogleditor_groupItem;
@@ -67,6 +68,15 @@ public:
     bool isGroupItem();
     bool isFrameItem();
     bool isRootItem();
+// --- temp
+    void setDrawData(bool bIsDrawn, QRectF rect)
+    {
+        m_isDrawn = bIsDrawn;
+        m_rect = rect;
+    }
+    bool  isDrawn() {return m_isDrawn;}
+    QRectF rect() {return m_rect;}
+// --- temp
 
     vogleditor_frameItem *getFrameItem() const
     {
@@ -103,6 +113,10 @@ private:
     float m_duration;
     bool m_isSpan;
     float m_maxChildDuration;
+//---- temp
+    bool  m_isDrawn;
+    QRectF m_rect;
+//---- temp
 
     QList<vogleditor_timelineItem *> m_childItems;
 

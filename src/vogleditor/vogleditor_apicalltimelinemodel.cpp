@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
+#include <QDebug>
 
 #include "vogleditor_apicalltimelinemodel.h"
 #include "vogleditor_timelineitem.h"
@@ -35,6 +36,8 @@ vogleditor_apiCallTimelineModel::vogleditor_apiCallTimelineModel(vogleditor_apiC
     : m_pRootApiCall(pRootApiCall),
       m_rawBaseTime(0)
 {
+    m_bTransparent = (bool) getenv("VOGL_TRANSP");
+    qDebug() << "Transparency:" << m_bTransparent;
     refresh();
 }
 
@@ -257,8 +260,10 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
             {
                 if (vogl_is_marker_push_entrypoint(pChildCallTreeItem->apiCallItem()->getTracePacket()->get_entrypoint_id()))
                 {
-                    pNewTimelineItem->setBrush(new QBrush(QColor(randomRGB())));
-                    //pNewTimelineItem->setBrush(new QBrush(QColor(Qt::transparent)));
+                    if (m_bTransparent)
+                      pNewTimelineItem->setBrush(new QBrush(QColor(Qt::transparent)));
+                    else
+                      pNewTimelineItem->setBrush(new QBrush(QColor(randomRGB())));
                 }
             }
         }

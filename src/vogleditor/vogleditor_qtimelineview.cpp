@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
+#include <QDebug>
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -58,6 +59,12 @@ vogleditor_QTimelineView::vogleditor_QTimelineView(QWidget *parent)
 
     m_horizontalScale = 1;
     m_lineLength = 1;
+
+    m_fudgefactor = QString(getenv("VOGL_FUDGE")).toFloat();
+    m_noPen = (bool) getenv("VOGL_NOPEN");
+
+    qDebug() << "fudgefactor: " << m_fudgefactor;
+    qDebug() << "no pen draw: " << m_noPen;
 }
 
 vogleditor_QTimelineView::~vogleditor_QTimelineView()
@@ -173,6 +180,8 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
         pixmapPainter.setBrush(m_triangleBrushWhite);
         pixmapPainter.setPen(m_trianglePen);
 
+        qDebug() << "drawTimelineItem:";
+
         float minimumOffset = 0;
         for (int c = 0; c < numChildren; c++)
         {
@@ -210,6 +219,14 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
         }
 
         // draw current api call marker
+//-- temp
+static bool bFirstTime=true;
+        if (bFirstTime) 
+        {
+            qDebug() << "drawCurrentApiCallMarker:";
+            bFirstTime=false;
+        }
+//-- temp
         bFoundApiCall = drawCurrentApiCallMarker(painter, triangle, pChild);
 
         if (bFoundFrame && bFoundApiCall)
@@ -234,6 +251,17 @@ bool vogleditor_QTimelineView::drawCurrentApiCallMarker(QPainter *painter,
     }
     if (callNumber == m_curApiCallNumber)
     {
+// --- temp
+        //if (pItem->getApiCallItem() != NULL)
+        if (pItem->isDrawn())
+        {
+            qDebug() << "Drawn: call# "<<callNumber<< pItem->rect();
+        }
+        else
+        {
+            qDebug() << "Not Drawn:" << pItem->rect();
+        }
+// --- temp
         painter->save();
         painter->translate(scalePositionHorizontally(pItem->getBeginTime()), 0);
         painter->drawPolygon(triangle);
@@ -319,8 +347,12 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
 //                  painter->setPen((*(pItem->getBrush())).color());
 //              else
                 {
-                    QPen pen(Qt::NoPen);  // don't draw rectangle boundaries
+                    QPen pen;
                     pen.setColor((*(pItem->getBrush())).color()); // fill color
+
+                    if (m_noPen)
+                        pen.setStyle(Qt::NoPen);  // don't draw rectangle boundaries
+
                     painter->setPen(pen);
                 }
 //#endif // LLL
@@ -331,12 +363,16 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
                 int intensity = std::min(255, (int)(durationRatio * 255.0f));
                 QColor color(intensity, 255 - intensity, 0);
                 painter->setBrush(QBrush(color));
-#ifdef LLL
-                painter->setPen(color);
-#endif // LLL
-                QPen pen(Qt::NoPen);  // don't draw rectangle boundaries
+//              painter->setPen(color);
+//#ifdef LLL
+                QPen pen;
                 pen.setColor(color);  // fill color
+
+                if (m_noPen)
+                    pen.setStyle(Qt::NoPen);  // don't draw rectangle boundaries
+
                 painter->setPen(pen);
+//#endif // LLL
             }
 
             // Clamp the item so that it is 1 pixel wide.
@@ -352,11 +388,38 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
 
             // draw the colored box that represents this item
             QRectF rect;
-            rect.setLeft(leftOffset);
+            rect.setLeft(leftOffset - m_fudgefactor/2.);
             rect.setTop(-height / 2);
-            rect.setWidth(scaledWidth);
+            rect.setWidth(scaledWidth + m_fudgefactor/2.);
             rect.setHeight(height);
             painter->drawRect(rect);
+// ------------------------------------------------ temp
+            pItem->setDrawData(true, rect);
+
+//#ifdef LLL
+            unsigned long long callNumber;
+            if (pItem->getApiCallItem() != NULL)
+            {
+                callNumber = pItem->getApiCallItem()->globalCallIndex();
+            }
+            else if (pItem->getGroupItem() != NULL)
+            {
+                callNumber = pItem->getGroupItem()->firstApiCallIndex();
+            }
+
+            if (pItem->getBrush())
+            {
+              QString hexcolor=QString("%1").arg(pItem->getBrush()->color().rgb(), 0, 16);
+
+              if (pItem->getBrush()->style() == Qt::SolidPattern)
+                  //qDebug() << "Apicall:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
+                  qDebug() << "Apicall:"<< callNumber<< rect<< hexcolor;
+              else
+                  //qDebug() << "State:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
+                  qDebug() << "State:"<< callNumber<< rect<< hexcolor;
+            }
+//#endif //LLL
+// ------------------------------------------------ temp
         }
 
 //#ifdef LLL

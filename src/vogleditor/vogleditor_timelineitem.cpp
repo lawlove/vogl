@@ -74,6 +74,9 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
     //m_brush = new QBrush(QColor(randomRGB()));
     VOGL_ASSERT(parent != NULL);
     parent->appendChild(this);
+// --- temp
+    m_isDrawn = false;
+// --- temp
 }
 
 // Timeline segmented spans
@@ -95,6 +98,9 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
         m_brush = new QBrush(*parent->getBrush());
     }
     parent->appendChild(this);
+// --- temp
+    m_isDrawn = false;
+// --- temp
 }
 
 bool vogleditor_timelineItem::isApiCallItem()
