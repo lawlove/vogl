@@ -99,7 +99,7 @@ private:
     QPen m_textPen;
     QFont m_textFont;
     float m_fudgefactor;
-    bool  m_noPen;
+    bool m_noPen;
     float m_horizontalScale;
     int m_lineLength;
     unsigned long long m_curFrame;

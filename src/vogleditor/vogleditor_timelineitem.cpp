@@ -74,9 +74,9 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
     //m_brush = new QBrush(QColor(randomRGB()));
     VOGL_ASSERT(parent != NULL);
     parent->appendChild(this);
-// --- temp
+    // --- temp
     m_isDrawn = false;
-// --- temp
+    // --- temp
 }
 
 // Timeline segmented spans
@@ -98,9 +98,9 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
         m_brush = new QBrush(*parent->getBrush());
     }
     parent->appendChild(this);
-// --- temp
+    // --- temp
     m_isDrawn = false;
-// --- temp
+    // --- temp
 }
 
 bool vogleditor_timelineItem::isApiCallItem()
@@ -121,7 +121,6 @@ bool vogleditor_timelineItem::isFrameItem()
 bool vogleditor_timelineItem::isRootItem()
 {
     return !(isApiCallItem() | isGroupItem() | isFrameItem());
-
 }
 
 vogleditor_timelineItem::~vogleditor_timelineItem()

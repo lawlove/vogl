@@ -61,7 +61,7 @@ vogleditor_QTimelineView::vogleditor_QTimelineView(QWidget *parent)
     m_lineLength = 1;
 
     m_fudgefactor = QString(getenv("VOGL_FUDGE")).toFloat();
-    m_noPen = (bool) getenv("VOGL_NOPEN");
+    m_noPen = (bool)getenv("VOGL_NOPEN");
 
     qDebug() << "fudgefactor: " << m_fudgefactor;
     qDebug() << "no pen draw: " << m_noPen;
@@ -116,7 +116,7 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
 {
     int gap = 10;
     int arrowHeight = 10;
-    int arrowTop = event->rect().height() / 2 - gap -13 - arrowHeight;
+    int arrowTop = event->rect().height() / 2 - gap - 13 - arrowHeight;
     int arrowHalfWidth = 3;
     m_lineLength = event->rect().width() - 2 * gap;
 
@@ -219,14 +219,14 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
         }
 
         // draw current api call marker
-//-- temp
-static bool bFirstTime=true;
-        if (bFirstTime) 
+        //-- temp
+        static bool bFirstTime = true;
+        if (bFirstTime)
         {
             qDebug() << "drawCurrentApiCallMarker:";
-            bFirstTime=false;
+            bFirstTime = false;
         }
-//-- temp
+        //-- temp
         bFoundApiCall = drawCurrentApiCallMarker(painter, triangle, pChild);
 
         if (bFoundFrame && bFoundApiCall)
@@ -251,17 +251,17 @@ bool vogleditor_QTimelineView::drawCurrentApiCallMarker(QPainter *painter,
     }
     if (callNumber == m_curApiCallNumber)
     {
-// --- temp
+        // --- temp
         //if (pItem->getApiCallItem() != NULL)
         if (pItem->isDrawn())
         {
-            qDebug() << "Drawn: call# "<<callNumber<< pItem->rect();
+            qDebug() << "Drawn: call# " << callNumber << pItem->rect();
         }
         else
         {
             qDebug() << "Not Drawn:" << pItem->rect();
         }
-// --- temp
+        // --- temp
         painter->save();
         painter->translate(scalePositionHorizontally(pItem->getBeginTime()), 0);
         painter->drawPolygon(triangle);
@@ -341,21 +341,21 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
             if (pItem->getBrush())
             {
                 painter->setBrush(*(pItem->getBrush()));
-//              painter->setPen((*(pItem->getBrush())).color());
-//#ifdef LLL
-//              if (*(pItem->getBrush()) == Qt::SolidPattern)
-//                  painter->setPen((*(pItem->getBrush())).color());
-//              else
+                //              painter->setPen((*(pItem->getBrush())).color());
+                //#ifdef LLL
+                //              if (*(pItem->getBrush()) == Qt::SolidPattern)
+                //                  painter->setPen((*(pItem->getBrush())).color());
+                //              else
                 {
                     QPen pen;
                     pen.setColor((*(pItem->getBrush())).color()); // fill color
 
                     if (m_noPen)
-                        pen.setStyle(Qt::NoPen);  // don't draw rectangle boundaries
+                        pen.setStyle(Qt::NoPen); // don't draw rectangle boundaries
 
                     painter->setPen(pen);
                 }
-//#endif // LLL
+                //#endif // LLL
             }
             else
             {
@@ -363,16 +363,16 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
                 int intensity = std::min(255, (int)(durationRatio * 255.0f));
                 QColor color(intensity, 255 - intensity, 0);
                 painter->setBrush(QBrush(color));
-//              painter->setPen(color);
-//#ifdef LLL
+                //              painter->setPen(color);
+                //#ifdef LLL
                 QPen pen;
-                pen.setColor(color);  // fill color
+                pen.setColor(color); // fill color
 
                 if (m_noPen)
-                    pen.setStyle(Qt::NoPen);  // don't draw rectangle boundaries
+                    pen.setStyle(Qt::NoPen); // don't draw rectangle boundaries
 
                 painter->setPen(pen);
-//#endif // LLL
+                //#endif // LLL
             }
 
             // Clamp the item so that it is 1 pixel wide.
@@ -388,15 +388,15 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
 
             // draw the colored box that represents this item
             QRectF rect;
-            rect.setLeft(leftOffset - m_fudgefactor/2.);
+            rect.setLeft(leftOffset - m_fudgefactor / 2.);
             rect.setTop(-height / 2);
-            rect.setWidth(scaledWidth + m_fudgefactor/2.);
+            rect.setWidth(scaledWidth + m_fudgefactor / 2.);
             rect.setHeight(height);
             painter->drawRect(rect);
-// ------------------------------------------------ temp
+            // ------------------------------------------------ temp
             pItem->setDrawData(true, rect);
 
-//#ifdef LLL
+            //#ifdef LLL
             unsigned long long callNumber;
             if (pItem->getApiCallItem() != NULL)
             {
@@ -409,20 +409,20 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
 
             if (pItem->getBrush())
             {
-              QString hexcolor=QString("%1").arg(pItem->getBrush()->color().rgb(), 0, 16);
+                QString hexcolor = QString("%1").arg(pItem->getBrush()->color().rgb(), 0, 16);
 
-              if (pItem->getBrush()->style() == Qt::SolidPattern)
-                  //qDebug() << "Apicall:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
-                  qDebug() << "Apicall:"<< callNumber<< rect<< hexcolor;
-              else
-                  //qDebug() << "State:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
-                  qDebug() << "State:"<< callNumber<< rect<< hexcolor;
+                if (pItem->getBrush()->style() == Qt::SolidPattern)
+                    //qDebug() << "Apicall:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
+                    qDebug() << "Apicall:" << callNumber << rect << hexcolor;
+                else
+                    //qDebug() << "State:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
+                    qDebug() << "State:" << callNumber << rect << hexcolor;
             }
-//#endif //LLL
-// ------------------------------------------------ temp
+            //#endif //LLL
+            // ------------------------------------------------ temp
         }
 
-//#ifdef LLL
+        //#ifdef LLL
         if (g_settings.group_state_render_stat())
         {
             if (!g_settings.group_debug_marker_in_use())
@@ -431,7 +431,7 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
                 return;
             }
         }
-//#endif // LLL
+        //#endif // LLL
         // now draw all children
         int numChildren = pItem->childCount();
         for (int c = 0; c < numChildren; c++)

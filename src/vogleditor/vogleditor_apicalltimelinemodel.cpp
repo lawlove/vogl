@@ -36,7 +36,7 @@ vogleditor_apiCallTimelineModel::vogleditor_apiCallTimelineModel(vogleditor_apiC
     : m_pRootApiCall(pRootApiCall),
       m_rawBaseTime(0)
 {
-    m_bTransparent = (bool) getenv("VOGL_TRANSP");
+    m_bTransparent = (bool)getenv("VOGL_TRANSP");
     qDebug() << "Transparency:" << m_bTransparent;
     refresh();
 }
@@ -227,7 +227,7 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
             //pNewTimelineItem->setBrush(new QBrush(color));
             pNewTimelineItem->setBrush(new QBrush(color, Qt::Dense5Pattern));
             //pNewTimelineItem->setBrush(new QBrush(color, Qt::HorPattern));
-            
+
             // make it the new parent
             //pParentTimelineItem = pNewTimelineItem;
             //
@@ -261,9 +261,9 @@ void vogleditor_apiCallTimelineModel::AddApiCallsToTimeline(vogleditor_apiCallTr
                 if (vogl_is_marker_push_entrypoint(pChildCallTreeItem->apiCallItem()->getTracePacket()->get_entrypoint_id()))
                 {
                     if (m_bTransparent)
-                      pNewTimelineItem->setBrush(new QBrush(QColor(Qt::transparent)));
+                        pNewTimelineItem->setBrush(new QBrush(QColor(Qt::transparent)));
                     else
-                      pNewTimelineItem->setBrush(new QBrush(QColor(randomRGB())));
+                        pNewTimelineItem->setBrush(new QBrush(QColor(randomRGB())));
                 }
             }
         }

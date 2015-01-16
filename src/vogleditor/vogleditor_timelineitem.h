@@ -63,20 +63,26 @@ public:
     bool isSpan() const;
     bool isMarker() const;
 
-// LLL may not need these...
+    // LLL may not need these...
     bool isApiCallItem();
     bool isGroupItem();
     bool isFrameItem();
     bool isRootItem();
-// --- temp
+    // --- temp
     void setDrawData(bool bIsDrawn, QRectF rect)
     {
         m_isDrawn = bIsDrawn;
         m_rect = rect;
     }
-    bool  isDrawn() {return m_isDrawn;}
-    QRectF rect() {return m_rect;}
-// --- temp
+    bool isDrawn()
+    {
+        return m_isDrawn;
+    }
+    QRectF rect()
+    {
+        return m_rect;
+    }
+    // --- temp
 
     vogleditor_frameItem *getFrameItem() const
     {
@@ -113,10 +119,10 @@ private:
     float m_duration;
     bool m_isSpan;
     float m_maxChildDuration;
-//---- temp
-    bool  m_isDrawn;
+    //---- temp
+    bool m_isDrawn;
     QRectF m_rect;
-//---- temp
+    //---- temp
 
     QList<vogleditor_timelineItem *> m_childItems;
 
