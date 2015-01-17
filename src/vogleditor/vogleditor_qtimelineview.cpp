@@ -251,22 +251,34 @@ bool vogleditor_QTimelineView::drawCurrentApiCallMarker(QPainter *painter,
     }
     if (callNumber == m_curApiCallNumber)
     {
-        // --- temp
+        // --- start temp
         //if (pItem->getApiCallItem() != NULL)
         if (pItem->isDrawn())
         {
-            qDebug() << "Drawn: call# " << callNumber << pItem->rect();
+            qDebug() << "Drawn: call#" << callNumber << pItem->rect();
         }
         else
         {
-            qDebug() << "Not Drawn:" << pItem->rect();
+            qDebug() << "Not Drawn: call#" << callNumber << pItem->rect();
         }
-        // --- temp
+        // --- end temp
+
+        // --- start temp
+        painter->save();
+        float xpos = scalePositionHorizontally(pItem->getBeginTime());
+        xpos -= m_fudgefactor;
+        painter->translate(xpos, 0);
+        painter->drawPolygon(triangle);
+        painter->restore();
+        bRetVal = true;
+        // --- end temp
+#ifdef orig
         painter->save();
         painter->translate(scalePositionHorizontally(pItem->getBeginTime()), 0);
         painter->drawPolygon(triangle);
         painter->restore();
         bRetVal = true;
+#endif // orig
     }
     else
     {
@@ -386,17 +398,7 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
             // update minimum offset
             minimumOffset = leftOffset + scaledWidth;
 
-            // draw the colored box that represents this item
-            QRectF rect;
-            rect.setLeft(leftOffset - m_fudgefactor / 2.);
-            rect.setTop(-height / 2);
-            rect.setWidth(scaledWidth + m_fudgefactor / 2.);
-            rect.setHeight(height);
-            painter->drawRect(rect);
             // ------------------------------------------------ temp
-            pItem->setDrawData(true, rect);
-
-            //#ifdef LLL
             unsigned long long callNumber;
             if (pItem->getApiCallItem() != NULL)
             {
@@ -407,16 +409,34 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
                 callNumber = pItem->getGroupItem()->firstApiCallIndex();
             }
 
+            // ------------------------------------------------ temp
+
+            // draw the colored box that represents this item
+            QRectF rect;
+            rect.setLeft(leftOffset - m_fudgefactor);
+            rect.setTop(-height / 2);
+            rect.setWidth(scaledWidth + m_fudgefactor);
+            rect.setHeight(height);
+            painter->drawRect(rect);
+            // ------------------------------------------------ temp
+            pItem->setDrawData(true, rect);
+
+            //#ifdef LLL
             if (pItem->getBrush())
             {
                 QString hexcolor = QString("%1").arg(pItem->getBrush()->color().rgb(), 0, 16);
 
                 if (pItem->getBrush()->style() == Qt::SolidPattern)
                     //qDebug() << "Apicall:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
-                    qDebug() << "Apicall:" << callNumber << rect << hexcolor;
+                    qDebug() << "Debug marker group apicall:" << callNumber << rect << hexcolor;
                 else
                     //qDebug() << "State:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
-                    qDebug() << "State:" << callNumber << rect << hexcolor;
+                    qDebug() << "State/Render group:" << callNumber << rect << hexcolor;
+            }
+            else
+            {
+                QString hexcolor = QString("%1").arg(painter->brush().color().rgb(), 0, 16);
+                qDebug() << "Apicall:" << callNumber << rect << hexcolor;
             }
             //#endif //LLL
             // ------------------------------------------------ temp
