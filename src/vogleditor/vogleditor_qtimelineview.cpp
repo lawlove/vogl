@@ -23,7 +23,6 @@
  *
  **************************************************************************/
 #include <QDebug>
-
 #include <QPainter>
 #include <QPaintEvent>
 #include "vogleditor_qtimelineview.h"
@@ -53,7 +52,12 @@ vogleditor_QTimelineView::vogleditor_QTimelineView(QWidget *parent)
     m_trianglePen = QPen(Qt::black);
     m_trianglePen.setWidth(1);
     m_trianglePen.setJoinStyle(Qt::MiterJoin);
-    m_trianglePen.setMiterLimit(4);
+    int ml = QString(getenv ("VOGL_MITERLIMIT")).toInt();
+    if (ml)
+    {
+        qDebug() << "miter limit:" << ml;
+        m_trianglePen.setMiterLimit(ml);
+    }
     m_textPen = QPen(Qt::white);
     m_textFont.setPixelSize(50);
 
@@ -441,8 +445,16 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
             //#endif //LLL
             // ------------------------------------------------ temp
         }
-
-        //#ifdef LLL
+//                       ||
+//#ifdef LLL // try this vv
+        if (pItem->isGroupItem())
+        {
+            // group time spans don't draw individual children's time spans
+            return;
+        }
+//#endif // LLL to replace this: ||
+       //                      vv
+#ifdef LLL
         if (g_settings.group_state_render_stat())
         {
             if (!g_settings.group_debug_marker_in_use())
@@ -451,7 +463,7 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
                 return;
             }
         }
-        //#endif // LLL
+#endif // LLL 
         // now draw all children
         int numChildren = pItem->childCount();
         for (int c = 0; c < numChildren; c++)
