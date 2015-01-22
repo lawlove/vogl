@@ -41,7 +41,6 @@ private:
     unsigned int randomRGB();
     void AddApiCallsToTimeline(vogleditor_apiCallTreeItem *pRoot, vogleditor_timelineItem *pDestRoot);
     float u64ToFloat(uint64_t value);
-    bool m_bTransparent;
 
     vogleditor_apiCallTreeItem *m_pRootApiCall;
     uint64_t m_rawBaseTime;

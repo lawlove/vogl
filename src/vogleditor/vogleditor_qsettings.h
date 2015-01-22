@@ -207,19 +207,9 @@ public:
 
     bool group_debug_marker_in_use()
     {
-        QVector<bool> checked_list = group_debug_marker_stat_list();
-
-        bool bVal;
-        foreach(bVal, checked_list)
-        {
-            if (bVal)
-                break;
-        }
-        return bVal;
-
-        // (or check options which are disabled if debug marker calls are unchecked)
-        //return (group_debug_marker_option_omit_used() || group_debug_marker_option_name_used())
+        return group_debug_marker_stat_list().contains(true);
     }
+
     // Nest options
 
     // Groupbox

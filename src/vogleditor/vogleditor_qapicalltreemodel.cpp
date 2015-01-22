@@ -299,7 +299,7 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                 // make apicall item
                 pCallItem = vogl_new(vogleditor_apiCallItem, pCurFrame, pTrace_packet, *pGL_packet);
                 pCurFrame->appendCall(pCallItem);
-                if (pCurParent->isGroupAncestry())
+                if (pCurParent->isGroup())
                 {
                     pCurGroup->appendCall(pCallItem);
                 }
@@ -402,15 +402,8 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
                 {
                     // If a series, set group name only once
                     if (pCurParent->isStateChangeGroup())
-                    //if (pCurParent->apiCallColumn() != cTREEITEM_RENDER)
                     {
-                        //LLL this should be ->setApiCallColumnTypeRender();
-                        //    vogleditor_apicalltreeitem is where the group
-                        //    names are defined... but this is where it's
-                        //    determined what type it is...or should there
-                        //    be a pCurParent->closeGroup() which can then
-                        //    determine its type and then name itself
-                        pCurParent->setApiCallColumn(cTREEITEM_RENDER);
+                        pCurParent->setRenderGroup();
                     }
                 }
             } // vogl_is_frame_buffer_write_entrypoint
@@ -418,6 +411,12 @@ bool vogleditor_QApiCallTreeModel::init(vogl_trace_file_reader *pTrace_reader)
 
         if (pTrace_reader->get_packet_type() == cTSPTEOF)
         {
+            // Close any remaining State/Render group
+            if (pCurParent->isGroup())
+            {
+                pCurParent->setDurationColumn();
+            }
+
             found_eof_packet = true;
             vogl_printf("Found trace file EOF packet on swap %" PRIu64 "\n", total_swaps);
             break;

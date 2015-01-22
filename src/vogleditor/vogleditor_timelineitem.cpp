@@ -71,12 +71,8 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
       m_pGroupItem(groupItem),
       m_pApiCallItem(NULL)
 {
-    //m_brush = new QBrush(QColor(randomRGB()));
     VOGL_ASSERT(parent != NULL);
     parent->appendChild(this);
-    // --- temp
-    m_isDrawn = false;
-    // --- temp
 }
 
 // Timeline segmented spans
@@ -93,14 +89,7 @@ vogleditor_timelineItem::vogleditor_timelineItem(float begin, float end, vogledi
       m_pApiCallItem(apiCallItem)
 {
     VOGL_ASSERT(parent != NULL);
-    if (parent->getBrush())
-    {
-        m_brush = new QBrush(*parent->getBrush());
-    }
     parent->appendChild(this);
-    // --- temp
-    m_isDrawn = false;
-    // --- temp
 }
 
 bool vogleditor_timelineItem::isApiCallItem()
@@ -125,35 +114,12 @@ bool vogleditor_timelineItem::isRootItem()
 
 vogleditor_timelineItem::~vogleditor_timelineItem()
 {
-    delete m_brush;
     for (int i = 0; i < m_childItems.size(); i++)
     {
         delete m_childItems[i];
         m_childItems[i] = NULL;
     }
     m_childItems.clear();
-}
-
-unsigned int vogleditor_timelineItem::randomRGB()
-{
-#ifdef LLL
-    static bool inited = false;
-    if (!inited)
-    {
-        srand(time(NULL));
-        inited = true;
-    }
-#endif // LLL
-
-    unsigned int rgbval = 0;
-
-    for (int i = 0; i < 3; i++)
-    {
-        rgbval |= (rand() & 0xF8) << (i * 8);
-        //rgbval |= rand() & (0xF8 << (i * 8));
-    }
-
-    return rgbval;
 }
 
 void vogleditor_timelineItem::appendChild(vogleditor_timelineItem *child)
@@ -195,10 +161,6 @@ QBrush *vogleditor_timelineItem::getBrush()
         if (parent() != NULL)
         {
             return parent()->getBrush();
-        }
-        else
-        {
-            return NULL;
         }
     }
 

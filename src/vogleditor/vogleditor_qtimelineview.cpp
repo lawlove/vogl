@@ -22,7 +22,6 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
-#include <QDebug>
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -53,18 +52,22 @@ vogleditor_QTimelineView::vogleditor_QTimelineView(QWidget *parent)
     m_trianglePen = QPen(Qt::black);
     m_trianglePen.setWidth(1);
     m_trianglePen.setJoinStyle(Qt::MiterJoin);
-    m_trianglePen.setMiterLimit(4);
+    m_trianglePen.setMiterLimit(3);
     m_textPen = QPen(Qt::white);
     m_textFont.setPixelSize(50);
 
     m_horizontalScale = 1;
     m_lineLength = 1;
 
-    m_fudgefactor = QString(getenv("VOGL_FUDGE")).toFloat();
-    m_noPen = (bool)getenv("VOGL_NOPEN");
-
-    qDebug() << "fudgefactor: " << m_fudgefactor;
-    qDebug() << "no pen draw: " << m_noPen;
+    char *envptr = getenv("VOGL_TIMELINEOFFSET");
+    if (envptr)
+    {
+        m_roundoff = QString(envptr).toFloat();
+    }
+    else
+    {
+        m_roundoff = 0.085;
+    }
 }
 
 vogleditor_QTimelineView::~vogleditor_QTimelineView()
@@ -116,7 +119,7 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
 {
     int gap = 10;
     int arrowHeight = 10;
-    int arrowTop = event->rect().height() / 2 - gap - 13 - arrowHeight;
+    int arrowTop = event->rect().height() / 2 - gap - arrowHeight;
     int arrowHalfWidth = 3;
     m_lineLength = event->rect().width() - 2 * gap;
 
@@ -165,12 +168,6 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
         // everything will have a small gap on the left and right sides
         pixmapPainter.translate(gap, event->rect().height() / 2);
 
-        if (m_pModel->get_root_item()->getBrush() == NULL)
-        {
-            //m_pModel->get_root_item()->setBrush(&m_triangleBrushWhite);
-            //m_pModel->get_root_item()->setBrush(new QBrush(m_triangleBrushWhite));
-        }
-
         m_horizontalScale = (float)m_lineLength / (float)m_pModel->get_root_item()->getDuration();
 
         // we don't want to draw the root item, but all of its children
@@ -179,8 +176,6 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
 
         pixmapPainter.setBrush(m_triangleBrushWhite);
         pixmapPainter.setPen(m_trianglePen);
-
-        qDebug() << "drawTimelineItem:";
 
         float minimumOffset = 0;
         for (int c = 0; c < numChildren; c++)
@@ -219,14 +214,6 @@ void vogleditor_QTimelineView::paint(QPainter *painter, QPaintEvent *event)
         }
 
         // draw current api call marker
-        //-- temp
-        static bool bFirstTime = true;
-        if (bFirstTime)
-        {
-            qDebug() << "drawCurrentApiCallMarker:";
-            bFirstTime = false;
-        }
-        //-- temp
         bFoundApiCall = drawCurrentApiCallMarker(painter, triangle, pChild);
 
         if (bFoundFrame && bFoundApiCall)
@@ -238,57 +225,41 @@ bool vogleditor_QTimelineView::drawCurrentApiCallMarker(QPainter *painter,
                                                         QPolygon &triangle,
                                                         vogleditor_timelineItem *pItem)
 {
-
-    unsigned long long callNumber;
     bool bRetVal = false;
-    if (pItem->getApiCallItem() != NULL)
+
+    if (pItem->isApiCallItem() || pItem->isGroupItem())
     {
-        callNumber = pItem->getApiCallItem()->globalCallIndex();
-    }
-    else if (pItem->getGroupItem() != NULL)
-    {
-        callNumber = pItem->getGroupItem()->firstApiCallIndex();
-    }
-    if (callNumber == m_curApiCallNumber)
-    {
-        // --- start temp
-        //if (pItem->getApiCallItem() != NULL)
-        if (pItem->isDrawn())
+        unsigned long long callNumber;
+        if (pItem->isApiCallItem())
         {
-            qDebug() << "Drawn: call#" << callNumber << pItem->rect();
+            callNumber = pItem->getApiCallItem()->globalCallIndex();
         }
         else
         {
-            qDebug() << "Not Drawn: call#" << callNumber << pItem->rect();
+            callNumber = pItem->getGroupItem()->firstApiCallIndex();
         }
-        // --- end temp
 
-        // --- start temp
-        painter->save();
-        float xpos = scalePositionHorizontally(pItem->getBeginTime());
-        xpos -= m_fudgefactor;
-        painter->translate(xpos, 0);
-        painter->drawPolygon(triangle);
-        painter->restore();
-        bRetVal = true;
-        // --- end temp
-#ifdef orig
-        painter->save();
-        painter->translate(scalePositionHorizontally(pItem->getBeginTime()), 0);
-        painter->drawPolygon(triangle);
-        painter->restore();
-        bRetVal = true;
-#endif // orig
-    }
-    else
-    {
-        // check children
-        int numChildren = pItem->childCount();
-        for (int c = 0; c < numChildren; c++)
+        if (callNumber == m_curApiCallNumber)
         {
-            if ((bRetVal = drawCurrentApiCallMarker(painter, triangle, pItem->child(c))))
+            float xpos = scalePositionHorizontally(pItem->getBeginTime());
+            xpos -= m_roundoff;
+
+            painter->save();
+            painter->translate(xpos, 0);
+            painter->drawPolygon(triangle);
+            painter->restore();
+            bRetVal = true;
+        }
+        else
+        {
+            // check children
+            int numChildren = pItem->childCount();
+            for (int c = 0; c < numChildren; c++)
             {
-                break;
+                if ((bRetVal = drawCurrentApiCallMarker(painter, triangle, pItem->child(c))))
+                {
+                    break;
+                }
             }
         }
     }
@@ -334,58 +305,25 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
     }
     else
     {
-#ifdef LLL
-        // put this here or have special logic in ::paint (calling function)
-        if (g_settings.group_state_render_stat())
-        {
-            // Only group time span needed
-            if (pItem->isApiCallItem())
-            {
-                return;
-            }
-        }
-#endif // LLL
         // only draw if the item will extend beyond the minimum offset
         float leftOffset = scalePositionHorizontally(pItem->getBeginTime());
         float scaledWidth = scaleDurationHorizontally(duration);
         if (minimumOffset < leftOffset + scaledWidth)
         {
+            // Set brush fill color
             if (pItem->getBrush())
             {
                 painter->setBrush(*(pItem->getBrush()));
-                //              painter->setPen((*(pItem->getBrush())).color());
-                //#ifdef LLL
-                //              if (*(pItem->getBrush()) == Qt::SolidPattern)
-                //                  painter->setPen((*(pItem->getBrush())).color());
-                //              else
-                {
-                    QPen pen;
-                    pen.setColor((*(pItem->getBrush())).color()); // fill color
-
-                    if (m_noPen)
-                        pen.setStyle(Qt::NoPen); // don't draw rectangle boundaries
-
-                    painter->setPen(pen);
-                }
-                //#endif // LLL
             }
-            else
+            else // create brush with color relative to time duration of apicall
             {
                 float durationRatio = duration / m_maxItemDuration;
                 int intensity = std::min(255, (int)(durationRatio * 255.0f));
                 QColor color(intensity, 255 - intensity, 0);
                 painter->setBrush(QBrush(color));
-                //              painter->setPen(color);
-                //#ifdef LLL
-                QPen pen;
-                pen.setColor(color); // fill color
-
-                if (m_noPen)
-                    pen.setStyle(Qt::NoPen); // don't draw rectangle boundaries
-
-                painter->setPen(pen);
-                //#endif // LLL
             }
+            // don't draw boundary. It can add an extra pixel to rect width
+            painter->setPen(Qt::NoPen);
 
             // Clamp the item so that it is 1 pixel wide.
             // This is intentionally being done before updating the minimum offset
@@ -398,60 +336,24 @@ void vogleditor_QTimelineView::drawTimelineItem(QPainter *painter, vogleditor_ti
             // update minimum offset
             minimumOffset = leftOffset + scaledWidth;
 
-            // ------------------------------------------------ temp
-            unsigned long long callNumber;
-            if (pItem->getApiCallItem() != NULL)
-            {
-                callNumber = pItem->getApiCallItem()->globalCallIndex();
-            }
-            else if (pItem->getGroupItem() != NULL)
-            {
-                callNumber = pItem->getGroupItem()->firstApiCallIndex();
-            }
-
-            // ------------------------------------------------ temp
-
             // draw the colored box that represents this item
             QRectF rect;
-            rect.setLeft(leftOffset - m_fudgefactor);
+            rect.setLeft(leftOffset - m_roundoff);
             rect.setTop(-height / 2);
-            rect.setWidth(scaledWidth + m_fudgefactor);
+            rect.setWidth(scaledWidth + m_roundoff);
             rect.setHeight(height);
             painter->drawRect(rect);
-            // ------------------------------------------------ temp
-            pItem->setDrawData(true, rect);
-
-            //#ifdef LLL
-            if (pItem->getBrush())
-            {
-                QString hexcolor = QString("%1").arg(pItem->getBrush()->color().rgb(), 0, 16);
-
-                if (pItem->getBrush()->style() == Qt::SolidPattern)
-                    //qDebug() << "Apicall:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
-                    qDebug() << "Debug marker group apicall:" << callNumber << rect << hexcolor;
-                else
-                    //qDebug() << "State:"<< "x pos:" << pItem->xPos() << "width:" << pItem->width();
-                    qDebug() << "State/Render group:" << callNumber << rect << hexcolor;
-            }
-            else
-            {
-                QString hexcolor = QString("%1").arg(painter->brush().color().rgb(), 0, 16);
-                qDebug() << "Apicall:" << callNumber << rect << hexcolor;
-            }
-            //#endif //LLL
-            // ------------------------------------------------ temp
         }
 
-        //#ifdef LLL
-        if (g_settings.group_state_render_stat())
+        // If only State/Render groups to display, we're done (if debug groups
+        // are checked continue to draw individual apicalls)
+        //
+        // TODO: test replacing following if-block check with just:
+        //       if (pItem->isGroupItem())
+        if (g_settings.group_state_render_stat() && !g_settings.group_debug_marker_in_use())
         {
-            if (!g_settings.group_debug_marker_in_use())
-            {
-                // group time spans don't need children's time
-                return;
-            }
+            return;
         }
-        //#endif // LLL
         // now draw all children
         int numChildren = pItem->childCount();
         for (int c = 0; c < numChildren; c++)

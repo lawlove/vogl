@@ -46,8 +46,8 @@ enum VOGL_API_CALL_TREE_COLUMN
     VOGL_ACTC_INDEX,
     VOGL_ACTC_GLCONTEXT,
     VOGL_ACTC_FLAGS,
-    VOGL_ACTC_BEGINTIME,
-    VOGL_ACTC_ENDTIME,
+    //VOGL_ACTC_BEGINTIME,
+    //VOGL_ACTC_ENDTIME,
     VOGL_ACTC_DURATION,
     VOGL_MAX_ACTC
 };
@@ -111,12 +111,14 @@ public:
 
     bool isApiCall() const;
     bool isGroup() const;
-    bool isGroupAncestry() const;
     bool isFrame() const;
     bool isRoot() const;
 
     bool isRenderGroup();
     bool isStateChangeGroup();
+
+    void setRenderGroup();
+    void setStateChangeGroup();
 
 private:
     void setColumnData(QVariant data, int column);
