@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
+
+#include <QDebug>
 #include <QBrush>
 
 #include "vogleditor_apicalltimelinemodel.h"
@@ -160,12 +162,44 @@ float vogleditor_apiCallTimelineModel::u64ToFloat(uint64_t value)
 unsigned int vogleditor_apiCallTimelineModel::randomRGB()
 {
     unsigned int rgbval = 0;
+    unsigned int ranval = rand();
 
+    static int sSwap = 1;
+    // blue value
+    //rgbval |= rand() & 0xF8;
+    //rgbval |= rand() & 0xF0;
+    //rgbval |= 0xF0;
+
+    rgbval = 0xC0  | (ranval & 0xFFFFFF);
+
+#ifdef LLL  // I like this .. works good
+    rgbval =  0xC0 | (ranval & 0x3F);
+    rgbval |= (0x80 << (sSwap * 8)) | (ranval & (0xFF << (sSwap * 8)));
+#endif //LLL
+    //rgbval =  0x80 | (ranval & 0xFF);
+    //rgbval |= (0x40 << (sSwap * 8)) | (ranval & (0x7F << (sSwap * 8)));
+    //rgbval |= ranval & (0x70 << (sSwap * 8));
+
+    //rgbval |= 0xC0 | (ranval & 0xF0F030);
+
+    //rgbval |= rand() & 0xF0F000;
+
+    // red or green value
+    //rgbval |= (rand() & 0xFF) << (sSwap * 8);
+    sSwap = 3 - sSwap;
+
+    QString hexval = QString("%1").arg(QColor(rgbval).rgb(), 0, 16).remove(0, 2);
+    QString redval(QString(hexval).remove(2, 4));
+    QString grnval(QString(hexval).remove(0, 2).remove(2, 2));
+    qDebug() << "OR blue with green:" << grnval << "and red: " << redval << "(" << hexval << ")";
+
+#ifdef orig
     for (int i = 0; i < 3; i++)
     {
         // mask out some lower bits from each component for more contrast
         rgbval |= (rand() & 0xF8) << (i * 8);
     }
+#endif // orig
 
     return rgbval;
 }
