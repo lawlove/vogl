@@ -170,7 +170,11 @@ unsigned int vogleditor_apiCallTimelineModel::randomRGB()
     //rgbval |= rand() & 0xF0;
     //rgbval |= 0xF0;
 
+    rgbval = 0xC0 | (0x40 << sSwap * 8) | (ranval & 0xFFFFFF);
+
+#ifdef LLL // better yet
     rgbval = 0xC0 | (ranval & 0xFFFFFF);
+#endif //LLL
 
 #ifdef LLL // I like this .. works good
     rgbval = 0xC0 | (ranval & 0x3F);
