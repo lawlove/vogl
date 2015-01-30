@@ -23,6 +23,8 @@
  *
  **************************************************************************/
 
+#include <QBrush>
+
 #include "vogleditor_timelineitem.h"
 #include "vogl_common.h"
 
@@ -114,6 +116,7 @@ bool vogleditor_timelineItem::isRootItem()
 
 vogleditor_timelineItem::~vogleditor_timelineItem()
 {
+    delete m_brush;
     for (int i = 0; i < m_childItems.size(); i++)
     {
         delete m_childItems[i];
